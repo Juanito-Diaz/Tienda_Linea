@@ -33,25 +33,29 @@ export default function ProductCard({ product, index = 0 }) {
         <Link to={`/producto/${product.id}`} tabIndex={-1} aria-hidden>
           <SmartImage src={product.images[0]} alt="" emoji={cat.emoji} className="size-full object-cover transition duration-700 group-hover:scale-105" />
         </Link>
-        <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
-          {discount > 0 && <span className="rounded-full bg-coral-500 px-2.5 py-0.5 text-[10px] font-bold text-white">-{discount}%</span>}
-          {product.tags.includes('nuevo') && <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold uppercase text-navy-900 shadow">Nuevo</span>}
+        <div className="absolute left-3 top-3 z-10">
+          {discount > 0 && <span className="rounded-full bg-coral-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm">-{discount}%</span>}
+        </div>
+        <div className="absolute right-3 top-3 z-10 flex flex-wrap items-center justify-end gap-1.5">
+          {product.tags.includes('nuevo') && (
+            <span className="rounded-full bg-white/95 px-2.5 py-0.5 text-[10px] font-bold uppercase text-navy-900 shadow-sm backdrop-blur-xs ring-1 ring-black/5">
+              Nuevo
+            </span>
+          )}
+          {product.gama && <GamaBadge gama={product.gama} />}
         </div>
         <button
           type="button"
           onClick={() => openQuick(product.id)}
-          className="absolute inset-x-3 bottom-3 flex translate-y-2 items-center justify-center gap-2 rounded-xl bg-white/95 py-2.5 text-sm font-semibold text-navy-900 opacity-0 shadow-lg backdrop-blur transition group-hover:translate-y-0 group-hover:opacity-100 focus-visible:translate-y-0 focus-visible:opacity-100 max-md:translate-y-0 max-md:opacity-100"
+          className="absolute inset-x-3 bottom-3 flex translate-y-2 items-center justify-center gap-2 rounded-xl bg-white/95 py-2.5 text-sm font-semibold text-navy-900 opacity-0 shadow-lg backdrop-blur transition group-hover:translate-y-0 group-hover:opacity-100 focus-visible:translate-y-0 focus-visible:opacity-100 max-md:translate-y-0 max-md:opacity-100 z-10"
         >
           <Eye className="size-4" /> Vista rápida
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{product.brand}</p>
-          <GamaBadge gama={product.gama} />
-        </div>
-        <h3 className="line-clamp-2 font-semibold leading-snug text-navy-900">
+      <div className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
+        <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-slate-500">{product.brand}</p>
+        <h3 className="line-clamp-2 font-semibold text-sm leading-snug text-navy-900">
           <Link to={`/producto/${product.id}`} className="hover:text-gold-700">
             {product.name}
           </Link>

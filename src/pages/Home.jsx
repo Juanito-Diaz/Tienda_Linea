@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight, MapPin, PackageCheck, Pause, Play, ShieldCheck, Thermometer, Truck } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Pause, Play, ShieldCheck, Thermometer, Truck } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { SmartImage } from '../components/ui';
 import { CATEGORIES, PRODUCTS, SLIDES } from '../data/products';
@@ -68,7 +68,12 @@ function HeroSlider() {
 }
 
 export default function Home() {
-  const promos = PRODUCTS.filter((p) => p.tags.includes('promo')).slice(0, 4);
+  const promos = [
+    PRODUCTS.find((p) => p.id === 'mq-001'),
+    PRODUCTS.find((p) => p.id === 'dp-010'),
+    PRODUCTS.find((p) => p.id === 'dp-001'),
+    PRODUCTS.find((p) => p.id === 'cf-007'),
+  ].filter(Boolean);
   const nuevos = PRODUCTS.filter((p) => p.tags.includes('nuevo')).slice(0, 8);
 
   return (
@@ -137,34 +142,6 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
           {promos.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
-        </div>
-      </section>
-
-      {/* Banner tracking */}
-      <section className="mx-auto max-w-7xl px-4 pt-20">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 via-navy-800 to-navy-950 p-8 text-white md:p-12">
-          <div className="absolute -right-20 -top-20 size-72 rounded-full bg-gold-500/20 blur-3xl" />
-          <div className="relative grid items-center gap-8 md:grid-cols-2">
-            <div className="space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-gold-300">
-                <span className="size-2 animate-pulse rounded-full bg-mint-500" /> Rastreo en vivo
-              </span>
-              <h2 className="font-display text-3xl font-bold md:text-4xl">Mira tu pedido avanzar, calle por calle</h2>
-              <p className="text-slate-300">Cada envío sale del 5 a Logística Hub con GPS. Conoce la hora estimada de llegada, quién te lo entrega y reporta cualquier incidencia al instante.</p>
-              <Link to="/rastreo" className="btn-gold">Probar el simulador de rastreo <ArrowRight className="size-4" /></Link>
-            </div>
-            <ol className="space-y-3">
-              {['Pedido recibido', 'En preparación y empaque', 'En tránsito', 'En ruta final de entrega', 'Entregado'].map((s, idx) => (
-                <li key={s} className="flex items-center gap-3 rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
-                  <span className={`grid size-8 place-items-center rounded-full text-sm font-bold ${idx < 3 ? 'bg-gold-500 text-navy-950' : 'bg-white/10 text-slate-400'}`}>
-                    {idx < 3 ? <PackageCheck className="size-4" /> : idx + 1}
-                  </span>
-                  <span className={idx < 3 ? 'font-medium' : 'text-slate-400'}>{s}</span>
-                  {idx === 2 && <span className="ml-auto animate-pulse text-xs font-semibold text-gold-300">Ahora</span>}
-                </li>
-              ))}
-            </ol>
-          </div>
         </div>
       </section>
 

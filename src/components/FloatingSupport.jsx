@@ -53,15 +53,6 @@ export default function FloatingSupport() {
   return (
     <div className="no-print">
       <div className="fixed bottom-5 right-5 z-30 flex flex-col items-end gap-3">
-        <a
-          href={SUPPORT_WHATSAPP}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Escríbenos por WhatsApp"
-          className="grid size-12 place-items-center rounded-full bg-[#25D366] text-white shadow-xl transition hover:scale-110"
-        >
-          <SocialIcon name="whatsapp" className="size-6" />
-        </a>
         <button
           type="button"
           popoverTarget="support-chat"

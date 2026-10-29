@@ -26,7 +26,7 @@ export default function ConfirmationStep({ order }) {
             <p className="font-mono text-2xl font-bold tracking-wide">{order.number}</p>
           </div>
           <div className="text-right text-sm">
-            <p className="font-display text-lg font-bold">5 a Logística</p>
+            <p className="font-display text-lg font-bold">Tienda en línea</p>
             <p className="text-slate-300">{date.toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' })}</p>
           </div>
         </header>

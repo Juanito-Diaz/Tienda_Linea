@@ -317,12 +317,6 @@ export default function Navbar() {
       {/* Navegación secundaria desktop */}
       <nav aria-label="Principal" className="hidden border-t border-white/10 md:block">
         <div className="mx-auto flex max-w-7xl items-center gap-1 px-4 py-1">
-          {CATEGORIES.map((c) => (
-            <Link key={c.id} to={`/catalogo?categoria=${c.id}`} className="rounded-lg px-3 py-2 text-sm font-medium text-slate-200 transition hover:text-white">
-              <span aria-hidden>{c.emoji}</span> {c.short}
-            </Link>
-          ))}
-          <span className="mx-2 h-5 w-px bg-white/15" />
           {NAV.map((n) => (
             <NavLink key={n.to} to={n.to} className={navClass}>
               {n.label}
@@ -341,12 +335,6 @@ export default function Navbar() {
             </button>
           </form>
           <nav aria-label="Móvil" className="mt-3 grid gap-1" onClick={() => setMobileOpen(false)}>
-            {CATEGORIES.map((c) => (
-              <Link key={c.id} to={`/catalogo?categoria=${c.id}`} className="rounded-lg px-3 py-2.5 text-sm hover:bg-white/10">
-                {c.emoji} {c.name}
-              </Link>
-            ))}
-            <hr className="my-1 border-white/10" />
             {NAV.map((n) => (
               <NavLink key={n.to} to={n.to} className={navClass}>
                 {n.label}

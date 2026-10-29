@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Clock, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react';
+import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 import { Logo, SocialIcon } from './ui';
 
 export default function Footer() {
@@ -54,9 +54,6 @@ export default function Footer() {
             <li><Link className="hover:text-white" to="/nosotros#delicados">Manejo de productos delicados</Link></li>
             <li><Link className="hover:text-white" to="/ayuda">Términos y condiciones</Link></li>
           </ul>
-          <p className="mt-5 flex items-center gap-2 rounded-xl bg-white/5 p-3 text-xs ring-1 ring-white/10">
-            <ShieldCheck className="size-5 shrink-0 text-mint-500" /> Pagos cifrados SSL · Productos 100% originales
-          </p>
         </div>
       </div>
       <div id="privacidad" className="border-t border-white/10">

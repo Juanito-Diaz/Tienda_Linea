@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star } from 'lucide-react';
+import { ShoppingBag, Star } from 'lucide-react';
 
 export function Logo({ light = false }) {
   return (
-    <Link to="/" className="group flex items-center gap-2.5" aria-label="5 a Logística, inicio">
-      <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-navy-800 to-navy-950 font-display text-lg font-bold text-gold-400 shadow-lg ring-1 ring-gold-500/40 transition group-hover:rotate-[-4deg]">
-        5A
+    <Link to="/" className="group flex items-center gap-2.5" aria-label="Tienda en línea, inicio">
+      <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-navy-800 to-navy-950 text-gold-400 shadow-lg ring-1 ring-gold-500/40 transition group-hover:rotate-[-4deg]">
+        <ShoppingBag className="size-5" />
       </span>
       <span className="leading-none">
-        <span className={`block font-display text-lg font-bold ${light ? 'text-white' : 'text-navy-900'}`}>5 a Logística</span>
+        <span className={`block font-display text-lg font-bold ${light ? 'text-white' : 'text-navy-900'}`}>Tienda en línea</span>
         <span className={`block text-[10px] font-semibold uppercase tracking-[0.2em] ${light ? 'text-gold-300' : 'text-gold-600'}`}>
           Belleza · Sport · Café
         </span>
@@ -47,12 +47,16 @@ export function Stars({ rating, reviews, size = 'sm' }) {
   );
 }
 
-export function GamaBadge({ gama }) {
+export function GamaBadge({ gama, className = '' }) {
   if (!gama) return null;
   return gama === 'alta' ? (
-    <span className="rounded-full bg-navy-900 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold-300">Gama Alta</span>
+    <span className={`inline-flex items-center whitespace-nowrap rounded-full bg-navy-950/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold-300 shadow-sm backdrop-blur-xs ring-1 ring-white/15 ${className}`}>
+      Gama Alta
+    </span>
   ) : (
-    <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700">Gama Media</span>
+    <span className={`inline-flex items-center whitespace-nowrap rounded-full bg-slate-800/85 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-200 shadow-sm backdrop-blur-xs ring-1 ring-white/10 ${className}`}>
+      Gama Media
+    </span>
   );
 }
 
