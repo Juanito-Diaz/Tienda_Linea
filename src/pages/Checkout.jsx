@@ -81,6 +81,18 @@ export default function Checkout() {
     }
   }, [currentUser]);
 
+  // Al cambiar de paso, desplazar la pantalla inmediatamente al inicio superior (vital en móviles)
+  useEffect(() => {
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
+    window.scrollTo(0, 0);
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [step]);
+
   const go = (n) => {
     // Si intenta avanzar al paso de Envío (1) o Pago (2) sin haber iniciado sesión:
     if (n > 0 && !currentUser) {
@@ -94,10 +106,22 @@ export default function Checkout() {
       return;
     }
 
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
+
     // Transición fluida entre pasos con View Transitions cuando está disponible
-    const update = () => setStep(n);
-    document.startViewTransition ? document.startViewTransition(update) : update();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const update = () => {
+      setStep(n);
+      window.scrollTo(0, 0);
+    };
+
+    if (document.startViewTransition) {
+      document.startViewTransition(update);
+    } else {
+      update();
+    }
+    window.scrollTo(0, 0);
   };
 
   return (

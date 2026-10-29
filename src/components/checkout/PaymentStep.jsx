@@ -60,7 +60,28 @@ export default function PaymentStep({ onBack, onPay }) {
   });
 
   const [method, setMethod] = useState('tarjeta');
-  const [card, setCard] = useState({ number: '', name: '', exp: '', cvv: '', msi: '1' });
+  const [card, setCard] = useState(() => {
+    try {
+      const data = localStorage.getItem(userCardsKey);
+      const list = data ? JSON.parse(data) : [];
+      if (list.length > 0) {
+        return {
+          number: list[0].number || '',
+          name: list[0].name || '',
+          exp: list[0].exp || '',
+          cvv: '',
+          msi: '1',
+        };
+      }
+    } catch {}
+    return {
+      number: '',
+      name: currentUser?.nombre?.toUpperCase() || '',
+      exp: '',
+      cvv: '',
+      msi: '1',
+    };
+  });
   const [saveThisCard, setSaveThisCard] = useState(true);
   const [flipped, setFlipped] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -71,34 +92,50 @@ export default function PaymentStep({ onBack, onPay }) {
     localStorage.setItem(userCardsKey, JSON.stringify(savedCards));
   }, [savedCards, userCardsKey]);
 
-  // Si selecciona una tarjeta guardada, cargar sus datos básicos
-  useEffect(() => {
-    if (selectedCardId && selectedCardId !== 'new') {
-      const found = savedCards.find((c) => c.id === selectedCardId);
+  // Selección manual de tarjeta (evita que mutaciones en savedCards reseteen el formulario)
+  const handleSelectCard = (id) => {
+    setSelectedCardId(id);
+    setError('');
+    if (id && id !== 'new') {
+      const found = savedCards.find((c) => c.id === id);
       if (found) {
-        setCard((prev) => ({
-          ...prev,
+        setCard({
           number: found.number,
           name: found.name,
           exp: found.exp,
-          cvv: '', // El CVV siempre se pide o se confirma por seguridad
-        }));
+          cvv: '',
+          msi: '1',
+        });
       }
-    } else if (selectedCardId === 'new') {
-      setCard({ number: '', name: currentUser?.nombre?.toUpperCase() || '', exp: '', cvv: '', msi: '1' });
+    } else {
+      setCard({
+        number: '',
+        name: currentUser?.nombre?.toUpperCase() || '',
+        exp: '',
+        cvv: '',
+        msi: '1',
+      });
     }
-  }, [selectedCardId, savedCards, currentUser]);
+  };
 
   const brand = brandOf(card.number);
 
   const removeCard = (id) => {
-    setSavedCards((prev) => prev.filter((c) => c.id !== id));
-    if (selectedCardId === id) setSelectedCardId('new');
+    const updated = savedCards.filter((c) => c.id !== id);
+    setSavedCards(updated);
+    if (selectedCardId === id) {
+      if (updated.length > 0) {
+        handleSelectCard(updated[0].id);
+      } else {
+        handleSelectCard('new');
+      }
+    }
     toast({ title: 'Tarjeta eliminada', type: 'info' });
   };
 
   const submit = async (e) => {
     e.preventDefault();
+    if (processing) return;
     setError('');
 
     if (method === 'tarjeta') {
@@ -113,22 +150,23 @@ export default function PaymentStep({ onBack, onPay }) {
       if (card.cvv.replace(/\D/g, '').length !== 3) {
         return setError('El código de seguridad (CVV) debe tener exactamente 3 dígitos.');
       }
-
-      // Si es una tarjeta nueva y activó guardarla:
-      if (selectedCardId === 'new' && saveThisCard) {
-        const newCardEntry = {
-          id: `card-${Date.now()}`,
-          number: card.number,
-          name: card.name.trim().toUpperCase(),
-          exp: card.exp,
-          brand: brand || 'Tarjeta',
-          last4: card.number.replace(/\D/g, '').slice(-4),
-        };
-        setSavedCards((prev) => [...prev, newCardEntry]);
-      }
     }
 
     setProcessing(true);
+
+    // Si es una tarjeta nueva y activó guardarla:
+    if (method === 'tarjeta' && selectedCardId === 'new' && saveThisCard) {
+      const newCardEntry = {
+        id: `card-${Date.now()}`,
+        number: card.number,
+        name: card.name.trim().toUpperCase(),
+        exp: card.exp,
+        brand: brand || 'Tarjeta',
+        last4: card.number.replace(/\D/g, '').slice(-4),
+      };
+      setSavedCards((prev) => [...prev, newCardEntry]);
+    }
+
     await new Promise((r) => setTimeout(r, 1800)); // Simulación de pasarela
     setProcessing(false);
 
@@ -149,8 +187,22 @@ export default function PaymentStep({ onBack, onPay }) {
       <div className="space-y-6">
         <div role="radiogroup" aria-label="Método de pago" className="grid gap-3 sm:grid-cols-3">
           {Object.entries(METHODS).map(([k, m]) => (
-            <label key={k} className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 bg-white p-4 transition ${method === k ? 'border-navy-900 shadow-lg shadow-navy-900/10' : 'border-slate-200 hover:border-slate-300'}`}>
-              <input type="radio" name="method" checked={method === k} onChange={() => setMethod(k)} className="sr-only" />
+            <label
+              key={k}
+              className={`flex items-center gap-3 rounded-2xl border-2 bg-white p-4 transition ${
+                processing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+              } ${
+                method === k ? 'border-navy-900 shadow-lg shadow-navy-900/10' : 'border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <input
+                type="radio"
+                name="method"
+                disabled={processing}
+                checked={method === k}
+                onChange={() => !processing && setMethod(k)}
+                className="sr-only"
+              />
               <span className={`grid size-10 place-items-center rounded-xl ${method === k ? 'bg-navy-900 text-gold-400' : 'bg-slate-100 text-slate-500'}`}><m.icon className="size-5" /></span>
               <span className="text-sm font-semibold text-navy-900">{m.label}</span>
             </label>
@@ -171,8 +223,10 @@ export default function PaymentStep({ onBack, onPay }) {
                     return (
                       <div
                         key={c.id}
-                        onClick={() => setSelectedCardId(c.id)}
-                        className={`relative flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition ${
+                        onClick={() => !processing && handleSelectCard(c.id)}
+                        className={`relative flex items-center justify-between p-3.5 rounded-2xl border-2 transition ${
+                          processing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                        } ${
                           isSelected
                             ? 'border-navy-900 bg-navy-50/50 shadow-sm'
                             : 'border-slate-200 bg-white hover:border-slate-300'
@@ -196,11 +250,12 @@ export default function PaymentStep({ onBack, onPay }) {
                           {isSelected && <CheckCircle2 className="size-5 text-mint-600" />}
                           <button
                             type="button"
+                            disabled={processing}
                             onClick={(e) => {
                               e.stopPropagation();
                               removeCard(c.id);
                             }}
-                            className="p-1.5 text-slate-300 hover:text-coral-500 rounded-lg hover:bg-slate-100 transition"
+                            className="p-1.5 text-slate-300 hover:text-coral-500 rounded-lg hover:bg-slate-100 transition disabled:opacity-40"
                             title="Eliminar tarjeta"
                           >
                             <Trash2 className="size-4" />
@@ -211,8 +266,10 @@ export default function PaymentStep({ onBack, onPay }) {
                   })}
 
                   <div
-                    onClick={() => setSelectedCardId('new')}
-                    className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border-2 border-dashed cursor-pointer transition ${
+                    onClick={() => !processing && handleSelectCard('new')}
+                    className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border-2 border-dashed transition ${
+                      processing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                    } ${
                       selectedCardId === 'new'
                         ? 'border-navy-900 bg-navy-50 text-navy-900 font-bold'
                         : 'border-slate-300 text-slate-500 hover:border-slate-400 bg-white'
@@ -327,7 +384,7 @@ export default function PaymentStep({ onBack, onPay }) {
                     autoComplete="cc-number"
                     placeholder="4242 4242 4242 4242"
                     className="input font-mono"
-                    disabled={selectedCardId !== 'new'}
+                    disabled={processing || selectedCardId !== 'new'}
                     required
                   />
                 </label>
@@ -338,7 +395,7 @@ export default function PaymentStep({ onBack, onPay }) {
                     onChange={(e) => setCard((c) => ({ ...c, name: e.target.value }))}
                     autoComplete="cc-name"
                     className="input"
-                    disabled={selectedCardId !== 'new'}
+                    disabled={processing || selectedCardId !== 'new'}
                     required
                   />
                 </label>
@@ -352,7 +409,7 @@ export default function PaymentStep({ onBack, onPay }) {
                       autoComplete="cc-exp"
                       placeholder="MM/AA"
                       className="input"
-                      disabled={selectedCardId !== 'new'}
+                      disabled={processing || selectedCardId !== 'new'}
                       required
                       pattern="\d{2}/\d{2}"
                     />
@@ -369,6 +426,7 @@ export default function PaymentStep({ onBack, onPay }) {
                       placeholder="123"
                       maxLength={3}
                       className="input"
+                      disabled={processing}
                       required
                       pattern="\d{3}"
                       title="Exactamente 3 dígitos numéricos"
@@ -381,8 +439,9 @@ export default function PaymentStep({ onBack, onPay }) {
                     <input
                       type="checkbox"
                       checked={saveThisCard}
+                      disabled={processing}
                       onChange={(e) => setSaveThisCard(e.target.checked)}
-                      className="size-4 accent-navy-900 rounded"
+                      className="size-4 accent-navy-900 rounded disabled:opacity-50"
                     />
                     <span className="text-xs text-slate-600 font-medium">
                       Guardar esta tarjeta para mis próximas compras en esta cuenta
@@ -392,7 +451,12 @@ export default function PaymentStep({ onBack, onPay }) {
 
                 <label>
                   <span className="label">Meses sin intereses</span>
-                  <select value={card.msi} onChange={(e) => setCard((c) => ({ ...c, msi: e.target.value }))} className="input cursor-pointer">
+                  <select
+                    value={card.msi}
+                    disabled={processing}
+                    onChange={(e) => setCard((c) => ({ ...c, msi: e.target.value }))}
+                    className="input cursor-pointer disabled:opacity-60"
+                  >
                     <option value="1">Una sola exhibición</option>
                     {totals.total >= 1500 && <option value="3">3 MSI de {formatMXN(totals.total / 3)}</option>}
                     {totals.total >= 3000 && <option value="6">6 MSI de {formatMXN(totals.total / 6)}</option>}
