@@ -370,10 +370,27 @@ export default function PaymentStep({ onBack, onPay }) {
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="label mb-0">Número de tarjeta</span>
                     {brand && (
-                      <span className={`rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wider animate-fade-in ${
-                        brand === 'VISA' ? 'bg-blue-600 text-white' : brand === 'Mastercard' ? 'bg-orange-600 text-white' : 'bg-navy-900 text-gold-300'
-                      }`}>
-                        {brand === 'VISA' ? '💳 VISA Detectada' : brand === 'Mastercard' ? '💳 Mastercard Detectada' : brand}
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium tracking-normal animate-fade-in transition-all ${
+                          brand === 'VISA'
+                            ? 'border-blue-200 bg-blue-50/90 text-blue-900 shadow-xs'
+                            : brand === 'Mastercard'
+                            ? 'border-amber-200 bg-amber-50/90 text-amber-950 shadow-xs'
+                            : 'border-slate-200 bg-slate-50 text-slate-800 shadow-xs'
+                        }`}
+                      >
+                        {brand === 'Mastercard' && (
+                          <span className="inline-flex items-center -space-x-1" aria-hidden="true">
+                            <span className="size-2.5 rounded-full bg-[#EB001B]" />
+                            <span className="size-2.5 rounded-full bg-[#F79E1B] opacity-95" />
+                          </span>
+                        )}
+                        {brand === 'VISA' && (
+                          <span className="size-1.5 rounded-full bg-blue-600" aria-hidden="true" />
+                        )}
+                        <span className={brand === 'VISA' ? 'font-bold tracking-wider text-[11px] text-blue-700' : 'font-semibold text-xs'}>
+                          {brand}
+                        </span>
                       </span>
                     )}
                   </div>
@@ -458,8 +475,8 @@ export default function PaymentStep({ onBack, onPay }) {
                     className="input cursor-pointer disabled:opacity-60"
                   >
                     <option value="1">Una sola exhibición</option>
-                    {totals.total >= 1500 && <option value="3">3 MSI de {formatMXN(totals.total / 3)}</option>}
-                    {totals.total >= 3000 && <option value="6">6 MSI de {formatMXN(totals.total / 6)}</option>}
+                    {totals.total >= 800 && <option value="3">3 MSI de {formatMXN(totals.total / 3)}</option>}
+                    {totals.total >= 1500 && <option value="6">6 MSI de {formatMXN(totals.total / 6)}</option>}
                   </select>
                 </label>
               </div>

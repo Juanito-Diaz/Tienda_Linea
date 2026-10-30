@@ -6,7 +6,7 @@ import { SUPPORT_WHATSAPP, SocialIcon } from '../components/ui';
 const FAQS = [
   {
     q: '¿Cuáles son los tiempos y costos de entrega?',
-    a: 'En la Ciudad de México y área conurbada contamos con entregas exprés en 24 horas hábiles. Para el resto de la República Mexicana el tiempo es de 2 a 4 días hábiles. El envío es completamente GRATIS en compras superiores a $999 MXN; de lo contrario tiene una tarifa fija de $119 MXN.',
+    a: 'En la Ciudad de México y área conurbada contamos con entregas exprés en 24 horas hábiles. Para el resto de la República Mexicana el tiempo es de 2 a 4 días hábiles. El envío es completamente GRATIS en compras superiores a $699 MXN; de lo contrario tiene una tarifa fija de $119 MXN.',
   },
   {
     q: '¿Cómo garantizan la autenticidad de los cosméticos de Gama Media y Alta?',

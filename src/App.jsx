@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingSupport from './components/FloatingSupport';
 import QuickViewModal from './components/QuickViewModal';
+import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
 import ProductDetail from './pages/ProductDetail';
@@ -105,23 +106,27 @@ export default function App() {
       <div className="flex min-h-dvh flex-col">
         <Navbar />
         <main id="main" key={location.pathname} className="flex-1 animate-fade-in">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/catalogo" element={<Catalog />} />
-            <Route path="/producto/:id" element={<ProductDetail />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/pedidos" element={<Orders />} />
-            <Route path="/rastreo" element={<Tracking />} />
-            <Route path="/rastreo/:order" element={<Tracking />} />
-            <Route path="/nosotros" element={<About />} />
-            <Route path="/ayuda" element={<Help />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/catalogo" element={<Catalog />} />
+              <Route path="/producto/:id" element={<ProductDetail />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/pedidos" element={<Orders />} />
+              <Route path="/rastreo" element={<Tracking />} />
+              <Route path="/rastreo/:order" element={<Tracking />} />
+              <Route path="/nosotros" element={<About />} />
+              <Route path="/ayuda" element={<Help />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ErrorBoundary>
         </main>
         <Footer />
       </div>
       <FloatingSupport />
-      <QuickViewModal productId={quickId} onClose={() => setQuickId(null)} />
+      <ErrorBoundary>
+        <QuickViewModal productId={quickId} onClose={() => setQuickId(null)} />
+      </ErrorBoundary>
     </QuickViewContext.Provider>
   );
 }

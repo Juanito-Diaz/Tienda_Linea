@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronRight, Leaf, PackageCheck, RotateCcw, Truck } from 'lucide-react';
 import ProductBuyBox from '../components/ProductBuyBox';
@@ -14,15 +14,52 @@ export default function ProductDetail() {
   const [zoom, setZoom] = useState(null);
   const [tab, setTab] = useState('detalles');
 
+  // Reiniciar estado cada vez que cambia el producto
+  useEffect(() => {
+    setActive(0);
+    setZoom(null);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [id]);
+
   if (!product) return <NotFound />;
-  const cat = categoryById(product.category);
+
+  const cat = categoryById(product.category) || {
+    id: product.category,
+    name: 'Categoría',
+    short: 'Categoría',
+    emoji: '🛍️',
+  };
+
+  const images = Array.isArray(product.images) && product.images.length > 0
+    ? product.images
+    : [''];
+  const currentImg = images[active] || images[0];
+  const zoomImg = currentImg ? currentImg.replace('w=1000', 'w=1600') : '';
+
   const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
-  const detailsTitle = product.category === 'maquillaje' ? 'Ingredientes y origen' : product.category === 'cafe' ? 'Origen y perfil' : 'Materiales y tecnología';
+  const detailsTitle = product.category === 'maquillaje'
+    ? 'Ingredientes y origen'
+    : product.category === 'cafe'
+    ? 'Origen y perfil'
+    : 'Materiales y tecnología';
 
   const TABS = {
     detalles: detailsTitle,
     envio: 'Envío y manejo',
     devoluciones: 'Devoluciones',
+  };
+
+  const handleMouseMove = (e) => {
+    // Solo aplicar zoom en dispositivos que soportan hover con cursor (evita problemas táctiles en Android/iOS)
+    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) {
+      return;
+    }
+    const r = e.currentTarget.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return;
+    setZoom({
+      x: ((e.clientX - r.left) / r.width) * 100,
+      y: ((e.clientY - r.top) / r.height) * 100,
+    });
   };
 
   return (
@@ -32,52 +69,82 @@ export default function ProductDetail() {
         <ChevronRight className="size-4" />
         <Link to={`/catalogo?categoria=${cat.id}`} className="hover:text-navy-900">{cat.name}</Link>
         <ChevronRight className="size-4" />
-        <span aria-current="page" className="text-navy-900">{product.name}</span>
+        <span aria-current="page" className="text-navy-900 line-clamp-1">{product.name}</span>
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        {/* Galería con zoom */}
+        {/* Galería con miniaturas y zoom seguro */}
         <div className="flex flex-col-reverse gap-4 sm:flex-row">
-          <div className="flex gap-3 sm:flex-col" role="group" aria-label="Miniaturas">
-            {product.images.map((src, i) => (
-              <button key={src} type="button" onClick={() => setActive(i)} aria-label={`Imagen ${i + 1}`} aria-pressed={i === active} className={`size-20 overflow-hidden rounded-xl ring-2 transition ${i === active ? 'ring-gold-500' : 'ring-transparent opacity-70 hover:opacity-100'}`}>
-                <SmartImage src={src.replace('w=1000', 'w=200')} alt="" emoji={cat.emoji} className="size-full object-cover" />
-              </button>
-            ))}
-          </div>
+          {images.length > 1 && (
+            <div className="flex gap-3 sm:flex-col" role="group" aria-label="Miniaturas">
+              {images.map((src, i) => (
+                <button
+                  key={src + i}
+                  type="button"
+                  onClick={() => setActive(i)}
+                  aria-label={`Imagen ${i + 1}`}
+                  aria-pressed={i === active}
+                  className={`size-20 overflow-hidden rounded-xl ring-2 transition ${
+                    i === active ? 'ring-gold-500' : 'ring-transparent opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  <SmartImage
+                    src={src ? src.replace('w=1000', 'w=200') : ''}
+                    alt=""
+                    emoji={cat.emoji}
+                    className="size-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+
           <div
             className="relative aspect-square flex-1 cursor-zoom-in overflow-hidden rounded-3xl bg-slate-100"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              setZoom({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
-            }}
+            onMouseMove={handleMouseMove}
             onMouseLeave={() => setZoom(null)}
           >
             <SmartImage
-              key={active}
-              src={product.images[active].replace('w=1000', 'w=1600')}
+              key={`${product.id}-${active}`}
+              src={zoomImg}
               alt={product.name}
               emoji={cat.emoji}
               loading="eager"
               className="size-full animate-fade-in object-cover transition-transform duration-200"
               style={zoom ? { transform: 'scale(1.8)', transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
             />
-            {product.oldPrice && <span className="absolute left-4 top-4 rounded-full bg-coral-500 px-3 py-1 text-xs font-bold text-white">Oferta</span>}
+            {product.oldPrice && (
+              <span className="absolute left-4 top-4 rounded-full bg-coral-500 px-3 py-1 text-xs font-bold text-white shadow-sm">
+                Oferta
+              </span>
+            )}
           </div>
         </div>
 
         {/* Información */}
         <div className="space-y-5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gold-700">{cat.emoji} {cat.name}</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-gold-700">
+              {cat.emoji} {cat.name}
+            </span>
             <GamaBadge gama={product.gama} />
-            {product.genero && <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-[10px] font-bold uppercase text-sky-700">{product.genero}</span>}
-            {product.tueste && <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-800">Tueste {product.tueste}</span>}
+            {product.genero && (
+              <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-[10px] font-bold uppercase text-sky-700">
+                {product.genero}
+              </span>
+            )}
+            {product.tueste && (
+              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-800">
+                Tueste {product.tueste}
+              </span>
+            )}
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">{product.brand}</p>
             <h1 className="font-display text-3xl font-bold text-navy-900 md:text-4xl">{product.name}</h1>
-            <div className="mt-2"><Stars rating={product.rating} reviews={product.reviews} size="md" /></div>
+            <div className="mt-2">
+              <Stars rating={product.rating} reviews={product.reviews} size="md" />
+            </div>
           </div>
           <p className="leading-relaxed text-slate-600">{product.description}</p>
           <ProductBuyBox product={product} />
@@ -88,7 +155,17 @@ export default function ProductDetail() {
       <section className="mt-14">
         <div role="tablist" aria-label="Información del producto" className="flex gap-1 overflow-x-auto border-b border-slate-200">
           {Object.entries(TABS).map(([k, label]) => (
-            <button key={k} role="tab" id={`tab-${k}`} aria-selected={tab === k} aria-controls={`panel-${k}`} onClick={() => setTab(k)} className={`-mb-px shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition ${tab === k ? 'border-gold-500 text-navy-900' : 'border-transparent text-slate-500 hover:text-navy-900'}`}>
+            <button
+              key={k}
+              role="tab"
+              id={`tab-${k}`}
+              aria-selected={tab === k}
+              aria-controls={`panel-${k}`}
+              onClick={() => setTab(k)}
+              className={`-mb-px shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+                tab === k ? 'border-gold-500 text-navy-900' : 'border-transparent text-slate-500 hover:text-navy-900'
+              }`}
+            >
               {label}
             </button>
           ))}
@@ -96,9 +173,12 @@ export default function ProductDetail() {
         <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="card mt-6 animate-fade-in p-6">
           {tab === 'detalles' && (
             <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-              {product.details.map(([k, v]) => (
+              {Array.isArray(product.details) && product.details.map(([k, v]) => (
                 <div key={k} className="border-b border-slate-100 pb-3">
-                  <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500"><Leaf className="size-3.5 text-gold-600" />{k}</dt>
+                  <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <Leaf className="size-3.5 text-gold-600" />
+                    {k}
+                  </dt>
                   <dd className="mt-1 text-navy-900">{v}</dd>
                 </div>
               ))}
@@ -106,12 +186,25 @@ export default function ProductDetail() {
           )}
           {tab === 'envio' && (
             <ul className="space-y-3 text-slate-600">
-              <li className="flex gap-3"><Truck className="size-5 shrink-0 text-navy-500" /> Sale del 5 a Logística Hub en menos de 12 h hábiles. Entrega en 24 h en CDMX y 2–4 días en el resto del país.</li>
-              <li className="flex gap-3"><PackageCheck className="size-5 shrink-0 text-navy-500" /> {product.category === 'maquillaje' ? 'Empaque térmico opaco para proteger fórmulas sensibles a luz y calor.' : product.category === 'cafe' ? 'Bolsa con válvula desgasificadora; tostado máximo 72 h antes del envío.' : 'Empaque reciclado; calzado en caja original protegida.'}</li>
+              <li className="flex gap-3">
+                <Truck className="size-5 shrink-0 text-navy-500" />
+                Sale del Centro de Logística en menos de 12 h hábiles. Entrega en 24 h en CDMX y 2–4 días en el resto del país.
+              </li>
+              <li className="flex gap-3">
+                <PackageCheck className="size-5 shrink-0 text-navy-500" />
+                {product.category === 'maquillaje'
+                  ? 'Empaque térmico opaco para proteger fórmulas sensibles a luz y calor.'
+                  : product.category === 'cafe'
+                  ? 'Bolsa con válvula desgasificadora; tostado máximo 72 h antes del envío.'
+                  : 'Empaque reciclado; calzado en caja original protegida.'}
+              </li>
             </ul>
           )}
           {tab === 'devoluciones' && (
-            <p className="flex gap-3 text-slate-600"><RotateCcw className="size-5 shrink-0 text-navy-500" /> 30 días para cambios o devoluciones. Cosméticos y café únicamente con sello intacto. Recolección gratuita a domicilio.</p>
+            <p className="flex gap-3 text-slate-600">
+              <RotateCcw className="size-5 shrink-0 text-navy-500" />
+              30 días para cambios o devoluciones. Cosméticos y café únicamente con sello intacto. Recolección gratuita a domicilio.
+            </p>
           )}
         </div>
       </section>
@@ -120,7 +213,9 @@ export default function ProductDetail() {
         <section className="mt-16" aria-labelledby="rel-title">
           <h2 id="rel-title" className="section-title mb-6">También te puede gustar</h2>
           <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
-            {related.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+            {related.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
           </div>
         </section>
       )}

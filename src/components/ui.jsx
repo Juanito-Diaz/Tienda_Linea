@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Star } from 'lucide-react';
 
@@ -21,9 +21,14 @@ export function Logo({ light = false }) {
 /** Imagen con carga diferida y fallback elegante si la red falla. */
 export function SmartImage({ src, alt, className = '', emoji = '📦', ...rest }) {
   const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
   if (failed || !src) {
     return (
-      <div role="img" aria-label={alt} className={`grid place-items-center bg-gradient-to-br from-navy-100 to-gold-100 text-5xl ${className}`}>
+      <div role="img" aria-label={alt} className={`grid place-items-center bg-gradient-to-br from-navy-100 to-gold-100 text-5xl select-none ${className}`}>
         {emoji}
       </div>
     );

@@ -11,7 +11,7 @@ export const PACKAGING = {
   delicado: { label: 'Empaque para delicados', desc: 'Burbuja + espuma, ideal para cosméticos y vidrio', price: 49 },
   regalo: { label: 'Empaque de regalo premium', desc: 'Caja rígida navy con listón dorado y tarjeta', price: 129 },
 };
-export const SHIPPING_FREE_FROM = 999;
+export const SHIPPING_FREE_FROM = 699;
 export const SHIPPING_COST = 119;
 
 const load = (key, fallback) => {

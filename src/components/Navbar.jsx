@@ -76,7 +76,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-900/95 text-white shadow-lg backdrop-blur supports-[backdrop-filter]:bg-navy-900/85">
       {/* Barra de anuncio */}
       <div className="hidden bg-gold-500 py-1 text-center text-xs font-semibold text-navy-950 sm:block">
-        🚚 Envío gratis en compras desde $999 MXN · Rastreo GPS en tiempo real en todos los pedidos
+        🚚 Envío gratis en compras desde $699 MXN · Rastreo GPS en tiempo real en todos los pedidos
       </div>
 
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
