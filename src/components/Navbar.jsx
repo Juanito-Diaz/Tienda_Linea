@@ -29,13 +29,18 @@ export default function Navbar() {
   const [showLiveResults, setShowLiveResults] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const searchContainerRef = useRef(null);
+  const userMenuRef = useRef(null);
 
-  // Cerrar el popup de búsqueda en vivo si se hace click fuera
+  // Cerrar menús al hacer click fuera
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
         setShowLiveResults(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setUserMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
@@ -189,112 +194,126 @@ export default function Navbar() {
             <Truck className="size-5" />
           </Link>
 
-          {/* Perfil de usuario (popover nativo) */}
-          <button type="button" popoverTarget="user-menu" className="rounded-lg p-2.5 text-slate-200 transition hover:bg-white/10 hover:text-white" aria-label="Mi cuenta">
-            <User className="size-5" />
-          </button>
-          <div id="user-menu" popover="auto" className="fixed left-auto right-4 top-20 m-0 w-72 rounded-2xl border border-slate-200 bg-white p-2 text-navy-900 shadow-2xl">
-            {currentUser ? (
-              <>
-                <div className="flex items-center gap-3 border-b border-slate-100 p-3">
-                  <span className="grid size-11 place-items-center rounded-full bg-gradient-to-br from-gold-400 to-gold-600 font-bold text-navy-950 text-sm">
-                    {currentUser.nombre
-                      .split(' ')
-                      .map((n) => n[0])
-                      .slice(0, 2)
-                      .join('')
-                      .toUpperCase()}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-navy-900">{currentUser.nombre}</p>
-                    <p className="text-xs text-slate-500">{currentUser.nivel} · {currentUser.puntos} pts</p>
-                    <p className="truncate text-[11px] text-slate-400">{currentUser.email}</p>
+          {/* Perfil de usuario */}
+          <div className="relative" ref={userMenuRef}>
+            <button
+              type="button"
+              onClick={() => setUserMenuOpen((o) => !o)}
+              className="rounded-lg p-2.5 text-slate-200 transition hover:bg-white/10 hover:text-white cursor-pointer"
+              aria-label="Mi cuenta"
+            >
+              <User className="size-5" />
+            </button>
+            {userMenuOpen && (
+              <div className="absolute right-0 top-12 z-50 w-72 rounded-2xl border border-slate-200 bg-white p-2 text-navy-900 shadow-2xl animate-fade-up">
+                {currentUser ? (
+                  <>
+                    <div className="flex items-center gap-3 border-b border-slate-100 p-3">
+                      <span className="grid size-11 place-items-center rounded-full bg-gradient-to-br from-gold-400 to-gold-600 font-bold text-navy-950 text-sm">
+                        {currentUser.nombre
+                          .split(' ')
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-bold text-navy-900">{currentUser.nombre}</p>
+                        <p className="text-xs text-slate-500">{currentUser.nivel} · {currentUser.puntos} pts</p>
+                        <p className="truncate text-[11px] text-slate-400">{currentUser.email}</p>
+                      </div>
+                    </div>
+                    <ul className="py-1 text-sm">
+                      <li>
+                        <Link
+                          to="/pedidos"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 font-medium text-navy-900"
+                        >
+                          <Package className="size-4 text-gold-600" /> Devoluciones y pedidos ({orders.length})
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to={orders[0] ? `/rastreo/${encodeURIComponent(orders[0].number)}` : '/rastreo'}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100"
+                        >
+                          <Truck className="size-4" /> Rastrear último pedido
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/ayuda"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100"
+                        >
+                          <User className="size-4" /> Centro de ayuda
+                        </Link>
+                      </li>
+                      <li className="border-t border-slate-100 mt-1 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            logout();
+                            setUserMenuOpen(false);
+                            toast({ title: 'Sesión cerrada', type: 'info' });
+                          }}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-coral-500 hover:bg-slate-100 cursor-pointer"
+                        >
+                          <LogOut className="size-4" /> Cerrar sesión
+                        </button>
+                      </li>
+                    </ul>
+                  </>
+                ) : (
+                  <div className="p-3 text-center">
+                    <div className="mx-auto mb-2 grid size-10 place-items-center rounded-full bg-navy-100 text-navy-900">
+                      <User className="size-5" />
+                    </div>
+                    <p className="text-sm font-bold text-navy-900">Accede a tu cuenta</p>
+                    <p className="text-xs text-slate-500 mb-3">Guarda tus pedidos y acumula puntos</p>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          setAuthMode('login');
+                          setAuthModalOpen(true);
+                        }}
+                        className="btn-primary py-2 text-xs cursor-pointer"
+                      >
+                        <LogIn className="size-3.5" /> Iniciar sesión
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          setAuthMode('register');
+                          setAuthModalOpen(true);
+                        }}
+                        className="btn-ghost py-2 text-xs cursor-pointer"
+                      >
+                        <UserPlus className="size-3.5" /> Registrar nuevo usuario
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <ul className="py-1 text-sm">
-                  <li>
-                    <Link
-                      to="/pedidos"
-                      onClick={() => document.getElementById('user-menu')?.hidePopover?.()}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 font-medium text-navy-900"
-                    >
-                      <Package className="size-4 text-gold-600" /> Devoluciones y pedidos ({orders.length})
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to={orders[0] ? `/rastreo/${encodeURIComponent(orders[0].number)}` : '/rastreo'}
-                      onClick={() => document.getElementById('user-menu')?.hidePopover?.()}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100"
-                    >
-                      <Truck className="size-4" /> Rastrear último pedido
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/ayuda" className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100">
-                      <User className="size-4" /> Centro de ayuda
-                    </Link>
-                  </li>
-                  <li className="border-t border-slate-100 mt-1 pt-1">
+                )}
+                {currentUser && (
+                  <div className="border-t border-slate-100 px-3 py-2 text-center">
                     <button
                       type="button"
                       onClick={() => {
-                        logout();
-                        toast({ title: 'Sesión cerrada', type: 'info' });
+                        setUserMenuOpen(false);
+                        setAuthMode('register');
+                        setAuthModalOpen(true);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-coral-500 hover:bg-slate-100"
+                      className="text-[11px] font-semibold text-gold-700 hover:underline flex items-center justify-center gap-1 w-full cursor-pointer"
                     >
-                      <LogOut className="size-4" /> Cerrar sesión
+                      <UserPlus className="size-3" /> + Registrar otro usuario en vivo
                     </button>
-                  </li>
-                </ul>
-              </>
-            ) : (
-              <div className="p-3 text-center">
-                <div className="mx-auto mb-2 grid size-10 place-items-center rounded-full bg-navy-100 text-navy-900">
-                  <User className="size-5" />
-                </div>
-                <p className="text-sm font-bold text-navy-900">Accede a tu cuenta</p>
-                <p className="text-xs text-slate-500 mb-3">Guarda tus pedidos y acumula puntos</p>
-                <div className="flex flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      document.getElementById('user-menu')?.hidePopover?.();
-                      setAuthMode('login');
-                      setAuthModalOpen(true);
-                    }}
-                    className="btn-primary py-2 text-xs"
-                  >
-                    <LogIn className="size-3.5" /> Iniciar sesión
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      document.getElementById('user-menu')?.hidePopover?.();
-                      setAuthMode('register');
-                      setAuthModalOpen(true);
-                    }}
-                    className="btn-ghost py-2 text-xs"
-                  >
-                    <UserPlus className="size-3.5" /> Registrar nuevo usuario
-                  </button>
-                </div>
-              </div>
-            )}
-            {currentUser && (
-              <div className="border-t border-slate-100 px-3 py-2 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    document.getElementById('user-menu')?.hidePopover?.();
-                    setAuthMode('register');
-                    setAuthModalOpen(true);
-                  }}
-                  className="text-[11px] font-semibold text-gold-700 hover:underline flex items-center justify-center gap-1 w-full"
-                >
-                  <UserPlus className="size-3" /> + Registrar otro usuario en vivo
-                </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

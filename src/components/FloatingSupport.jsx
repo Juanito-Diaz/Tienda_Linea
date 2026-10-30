@@ -17,9 +17,8 @@ function botReply(text) {
   return 'Gracias por escribirnos. Un agente humano se unirá en breve; si prefieres, continúa por WhatsApp. 💬';
 }
 
-/** Botón flotante de soporte con panel de chat no modal (<dialog popover>). */
+/** Botón flotante de soporte con panel de chat en vivo. */
 export default function FloatingSupport() {
-  const panelRef = useRef(null);
   const listRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState('');
@@ -29,15 +28,8 @@ export default function FloatingSupport() {
   ]);
 
   useEffect(() => {
-    const el = panelRef.current;
-    const onToggle = (e) => setOpen(e.newState === 'open');
-    el?.addEventListener('toggle', onToggle);
-    return () => el?.removeEventListener('toggle', onToggle);
-  }, []);
-
-  useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, typing]);
+  }, [messages, typing, open]);
 
   const send = (text) => {
     if (!text.trim()) return;
@@ -52,38 +44,42 @@ export default function FloatingSupport() {
 
   return (
     <div className="no-print">
-      <div className="fixed bottom-5 right-5 z-30 flex flex-col items-end gap-3">
+      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
         <button
           type="button"
-          popoverTarget="support-chat"
+          onClick={() => setOpen((o) => !o)}
           aria-label={open ? 'Cerrar chat de soporte' : 'Abrir chat en vivo'}
-          className="grid size-14 place-items-center rounded-full bg-navy-900 text-gold-400 shadow-2xl ring-4 ring-gold-500/30 transition hover:scale-105"
+          className="grid size-14 place-items-center rounded-full bg-navy-900 text-gold-400 shadow-2xl ring-4 ring-gold-500/30 transition hover:scale-105 cursor-pointer"
         >
           {open ? <X className="size-6" /> : <MessageCircle className="size-6" />}
         </button>
       </div>
 
-      <dialog
-        ref={panelRef}
-        id="support-chat"
-        popover="manual"
-        aria-labelledby="chat-title"
-        className="fixed bottom-24 left-auto right-5 top-auto m-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl [&:popover-open]:flex"
-        style={{ width: 'min(22rem, calc(100vw - 2.5rem))', height: 'min(30rem, calc(100dvh - 8rem))' }}
-      >
-        <header className="flex items-center gap-3 bg-navy-900 p-4 text-white">
-          <span className="relative grid size-10 place-items-center rounded-full bg-gold-500 text-navy-950">
-            <Headphones className="size-5" />
-            <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-mint-500 ring-2 ring-navy-900" />
-          </span>
-          <div className="flex-1">
-            <h2 id="chat-title" className="text-sm font-semibold">Soporte en vivo</h2>
-            <p className="text-xs text-slate-300">En línea · responde en ~1 min</p>
-          </div>
-          <button type="button" popoverTarget="support-chat" popoverTargetAction="hide" className="rounded-lg p-1.5 hover:bg-white/10" aria-label="Cerrar chat">
-            <X className="size-4" />
-          </button>
-        </header>
+      {open && (
+        <div
+          role="dialog"
+          aria-labelledby="chat-title"
+          className="fixed bottom-24 right-5 z-40 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl animate-fade-up"
+          style={{ width: 'min(22rem, calc(100vw - 2.5rem))', height: 'min(30rem, calc(100vh - 8rem))' }}
+        >
+          <header className="flex items-center gap-3 bg-navy-900 p-4 text-white">
+            <span className="relative grid size-10 place-items-center rounded-full bg-gold-500 text-navy-950">
+              <Headphones className="size-5" />
+              <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-mint-500 ring-2 ring-navy-900" />
+            </span>
+            <div className="flex-1">
+              <h2 id="chat-title" className="text-sm font-semibold">Soporte en vivo</h2>
+              <p className="text-xs text-slate-300">En línea · responde en ~1 min</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="rounded-lg p-1.5 hover:bg-white/10 cursor-pointer"
+              aria-label="Cerrar chat"
+            >
+              <X className="size-4" />
+            </button>
+          </header>
 
         <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4" aria-live="polite">
           {messages.map((m, i) => (
@@ -121,7 +117,8 @@ export default function FloatingSupport() {
         <a href={SUPPORT_WHATSAPP} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366]/10 py-2 text-xs font-semibold text-[#128C7E]">
           <SocialIcon name="whatsapp" className="size-4" /> Continuar en WhatsApp
         </a>
-      </dialog>
+      </div>
+      )}
     </div>
   );
 }

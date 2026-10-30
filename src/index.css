@@ -51,7 +51,6 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
   }
   body {
@@ -161,40 +160,12 @@
   }
 }
 
-/* ---------- Native <dialog> (quick view, incidencias) ---------- */
-dialog:modal {
-  /* Evita que el scroll dentro del modal encadene a la página */
-  overscroll-behavior: contain;
-}
+/* ---------- Modales y diálogos ---------- */
 dialog::backdrop {
-  background: rgb(6 15 31 / 0.6);
-  backdrop-filter: blur(4px);
-  overflow: hidden;
-  overscroll-behavior: contain;
-}
-dialog[open] {
-  animation: dialog-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-}
-@keyframes dialog-in {
-  from { opacity: 0; transform: translateY(16px) scale(0.98); }
-  to { opacity: 1; transform: none; }
+  background: rgb(6 15 31 / 0.75);
 }
 
-/* ---------- Toasts (popover="manual") ---------- */
-.toast-region {
-  inset: auto 1rem 1rem auto;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  overflow: visible;
-  width: min(22rem, calc(100vw - 2rem));
-}
-.toast-region:is(:popover-open, .\:popover-open) {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
+/* ---------- Toasts ---------- */
 .toast {
   animation: toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }

@@ -8,7 +8,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   const toast = useToast();
   const [isRegister, setIsRegister] = useState(initialMode === 'register');
   const [error, setError] = useState('');
-  const dialogRef = useRef(null);
 
   // Form states
   const [nombre, setNombre] = useState('');
@@ -22,40 +21,33 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   }, [initialMode, isOpen]);
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen, onClose]);
 
-    if (isOpen) {
-      if (!dialog.open) {
-        dialog.showModal();
-      }
-    } else {
-      if (dialog.open) {
-        dialog.close();
-      }
-    }
-  }, [isOpen]);
-
-  // Fallback para cerrar en clic al backdrop
-  const handleBackdropClick = (e) => {
-    if (e.target === dialogRef.current) {
-      onClose();
-    }
-  };
+  if (!isOpen) return null;
 
   return (
-    <dialog
-      ref={dialogRef}
-      onClose={onClose}
-      onClick={handleBackdropClick}
-      className="m-auto w-[min(28rem,calc(100vw-2rem))] overflow-hidden rounded-3xl bg-white p-0 shadow-2xl backdrop:bg-navy-950/70 backdrop:backdrop-blur-sm"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-      }}
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
     >
-      <div className="relative p-6 sm:p-8">
+      <div
+        className="fixed inset-0 bg-navy-950/80 transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div className="relative z-10 w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl bg-white shadow-2xl p-6 sm:p-8">
         {/* Botón cerrar */}
         <button
           type="button"
@@ -254,6 +246,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           )}
         </div>
       </div>
-    </dialog>
+    </div>
   );
 }

@@ -29,8 +29,9 @@ export const formatMXN = (n) =>
 export const lineKey = (productId, variant, extra) => [productId, variant ?? '', extra ?? ''].join('|');
 
 export function unitPrice(product, variantValue) {
-  const opt = product.variants?.options.find((o) => o.value === variantValue);
-  return product.price + (opt?.priceDelta ?? 0);
+  if (!product) return 0;
+  const opt = product.variants?.options?.find((o) => o.value === variantValue);
+  return (product.price ?? 0) + (opt?.priceDelta ?? 0);
 }
 
 export function StoreProvider({ children }) {

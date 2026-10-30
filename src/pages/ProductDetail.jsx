@@ -18,7 +18,11 @@ export default function ProductDetail() {
   useEffect(() => {
     setActive(0);
     setZoom(null);
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    try {
+      window.scrollTo(0, 0);
+    } catch {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
   }, [id]);
 
   if (!product) return <NotFound />;
@@ -33,7 +37,8 @@ export default function ProductDetail() {
   const images = Array.isArray(product.images) && product.images.length > 0
     ? product.images
     : [''];
-  const currentImg = images[active] || images[0];
+  const safeActive = active < images.length ? active : 0;
+  const currentImg = images[safeActive] || images[0] || '';
   const zoomImg = currentImg ? currentImg.replace('w=1000', 'w=1600') : '';
 
   const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);

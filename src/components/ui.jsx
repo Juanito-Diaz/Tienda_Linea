@@ -55,11 +55,11 @@ export function Stars({ rating, reviews, size = 'sm' }) {
 export function GamaBadge({ gama, className = '' }) {
   if (!gama) return null;
   return gama === 'alta' ? (
-    <span className={`inline-flex items-center whitespace-nowrap rounded-full bg-navy-950/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold-300 shadow-sm backdrop-blur-xs ring-1 ring-white/15 ${className}`}>
+    <span className={`inline-flex items-center whitespace-nowrap rounded-full bg-navy-950 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold-300 shadow-sm ring-1 ring-gold-500/30 ${className}`}>
       Gama Alta
     </span>
   ) : (
-    <span className={`inline-flex items-center whitespace-nowrap rounded-full bg-slate-800/85 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-200 shadow-sm backdrop-blur-xs ring-1 ring-white/10 ${className}`}>
+    <span className={`inline-flex items-center whitespace-nowrap rounded-full bg-slate-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-200 shadow-sm ring-1 ring-white/10 ${className}`}>
       Gama Media
     </span>
   );

@@ -30,15 +30,15 @@ export default function ProductCard({ product, index = 0 }) {
       style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-slate-100">
-        <Link to={`/producto/${product.id}`} tabIndex={-1} aria-hidden>
+        <Link to={`/producto/${product.id}`} aria-label={`Ver producto ${product.name}`}>
           <SmartImage src={product.images[0]} alt="" emoji={cat.emoji} className="size-full object-cover transition duration-700 group-hover:scale-105" />
         </Link>
-        <div className="absolute left-3 top-3 z-10">
+        <div className="absolute left-3 top-3 z-10 pointer-events-none">
           {discount > 0 && <span className="rounded-full bg-coral-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm">-{discount}%</span>}
         </div>
-        <div className="absolute right-3 top-3 z-10 flex flex-wrap items-center justify-end gap-1.5">
+        <div className="absolute right-3 top-3 z-10 flex flex-wrap items-center justify-end gap-1.5 pointer-events-none">
           {product.tags.includes('nuevo') && (
-            <span className="rounded-full bg-white/95 px-2.5 py-0.5 text-[10px] font-bold uppercase text-navy-900 shadow-sm backdrop-blur-xs ring-1 ring-black/5">
+            <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold uppercase text-navy-900 shadow-sm ring-1 ring-black/5">
               Nuevo
             </span>
           )}
@@ -47,7 +47,7 @@ export default function ProductCard({ product, index = 0 }) {
         <button
           type="button"
           onClick={() => openQuick(product.id)}
-          className="absolute inset-x-3 bottom-3 flex translate-y-2 items-center justify-center gap-2 rounded-xl bg-white/95 py-2.5 text-sm font-semibold text-navy-900 opacity-0 shadow-lg backdrop-blur transition group-hover:translate-y-0 group-hover:opacity-100 focus-visible:translate-y-0 focus-visible:opacity-100 max-md:translate-y-0 max-md:opacity-100 z-10"
+          className="absolute inset-x-3 bottom-3 flex translate-y-2 items-center justify-center gap-2 rounded-xl bg-white py-2.5 text-sm font-semibold text-navy-900 opacity-0 shadow-lg transition group-hover:translate-y-0 group-hover:opacity-100 focus-visible:translate-y-0 focus-visible:opacity-100 max-md:translate-y-0 max-md:opacity-100 z-10 cursor-pointer"
         >
           <Eye className="size-4" /> Vista rápida
         </button>

@@ -29,7 +29,13 @@ import {
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo({ top: 0, behavior: 'instant' }), [pathname]);
+  useEffect(() => {
+    try {
+      window.scrollTo(0, 0);
+    } catch {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [pathname]);
   return null;
 }
 
@@ -105,7 +111,7 @@ export default function App() {
       </a>
       <div className="flex min-h-dvh flex-col">
         <Navbar />
-        <main id="main" key={location.pathname} className="flex-1 animate-fade-in">
+        <main id="main" className="flex-1">
           <ErrorBoundary>
             <Routes>
               <Route path="/" element={<Home />} />
