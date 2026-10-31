@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { ArrowRight, X } from 'lucide-react';
 import { GamaBadge, SmartImage, Stars } from './ui';
@@ -53,14 +54,14 @@ export default function QuickViewModal({ productId, onClose }) {
     : [''];
   const currentImg = images[active] || images[0];
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="qv-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in text-navy-900"
     >
-      {/* Fondo oscuro con opacidad sólida (sin backdrop-filter que rompe Chromium en Android) */}
+      {/* Fondo oscuro con opacidad sólida */}
       <div
         className="fixed inset-0 bg-navy-950/80 transition-opacity"
         onClick={onClose}
@@ -68,7 +69,10 @@ export default function QuickViewModal({ productId, onClose }) {
       />
 
       {/* Contenedor del contenido */}
-      <div className="relative z-10 m-auto w-full max-w-4xl max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl bg-white shadow-2xl">
+      <div
+        className="relative z-10 m-auto w-full max-w-4xl max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl bg-white text-navy-900 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="grid md:grid-cols-2">
           <div className="relative bg-slate-100 min-h-[260px]">
             <SmartImage
@@ -136,4 +140,8 @@ export default function QuickViewModal({ productId, onClose }) {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined'
+    ? createPortal(modalContent, document.body)
+    : modalContent;
 }

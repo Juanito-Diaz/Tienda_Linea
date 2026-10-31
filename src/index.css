@@ -144,7 +144,7 @@
     @apply rounded-2xl border border-slate-200/80 bg-white shadow-sm;
   }
   .input {
-    @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-navy-500 focus:ring-4 focus:ring-navy-100;
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-navy-900 placeholder:text-slate-400 outline-none transition focus:border-navy-500 focus:ring-4 focus:ring-navy-100;
   }
   .input:user-invalid {
     @apply border-coral-500 ring-4 ring-coral-500/10;

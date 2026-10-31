@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { X, User, Mail, Lock, Phone, UserPlus, LogIn, Sparkles, ShieldCheck } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { X, User, Mail, Lock, Phone, UserPlus, LogIn, Sparkles, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
@@ -8,6 +9,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   const toast = useToast();
   const [isRegister, setIsRegister] = useState(initialMode === 'register');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Form states
   const [nombre, setNombre] = useState('');
@@ -18,6 +20,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   useEffect(() => {
     setIsRegister(initialMode === 'register');
     setError('');
+    setShowPassword(false);
   }, [initialMode, isOpen]);
 
   useEffect(() => {
@@ -36,18 +39,24 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-fade-in text-navy-900"
     >
+      {/* Fondo oscuro con opacidad */}
       <div
         className="fixed inset-0 bg-navy-950/80 transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="relative z-10 w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl bg-white shadow-2xl p-6 sm:p-8">
+
+      {/* Contenedor del modal */}
+      <div
+        className="relative z-10 w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl bg-white text-navy-900 shadow-2xl p-6 sm:p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Botón cerrar */}
         <button
           type="button"
@@ -129,10 +138,12 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 <User className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
+                  name="nombre"
+                  autoComplete="name"
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   placeholder="Ej. Sofía Hernández"
-                  className="input pl-10"
+                  className="input pl-10 text-navy-900 placeholder:text-slate-400"
                   required
                 />
               </div>
@@ -145,10 +156,12 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
               <Mail className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="email"
+                name="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ejemplo@correo.mx"
-                className="input pl-10"
+                className="input pl-10 text-navy-900 placeholder:text-slate-400"
                 required
               />
             </div>
@@ -161,10 +174,12 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 <Phone className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="tel"
+                  name="telefono"
+                  autoComplete="tel"
                   value={telefono}
                   onChange={(e) => setTelefono(e.target.value)}
                   placeholder="55 1234 5678"
-                  className="input pl-10"
+                  className="input pl-10 text-navy-900 placeholder:text-slate-400"
                 />
               </div>
             </label>
@@ -175,13 +190,23 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             <div className="relative">
               <Lock className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                autoComplete={isRegister ? 'new-password' : 'current-password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="input pl-10"
+                className="input pl-10 pr-10 text-navy-900 placeholder:text-slate-400 font-mono"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy-900 cursor-pointer"
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+              >
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
             </div>
           </label>
 
@@ -207,7 +232,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
           <button
             type="submit"
-            className="btn-primary w-full py-3.5 text-sm font-bold shadow-lg shadow-navy-900/25"
+            className="btn-primary w-full py-3.5 text-sm font-bold shadow-lg shadow-navy-900/25 cursor-pointer"
           >
             {isRegister ? 'Crear mi cuenta' : 'Ingresar a mi cuenta'}
           </button>
@@ -248,4 +273,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined'
+    ? createPortal(modalContent, document.body)
+    : modalContent;
 }
