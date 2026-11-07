@@ -40,7 +40,7 @@ export function ToastProvider({ children }) {
       {children}
       {toasts.length > 0 && (
         <section
-          className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2.5 pointer-events-none max-w-[calc(100vw-2.5rem)] w-88"
+          className="fixed top-20 right-4 sm:top-24 sm:right-6 z-[100] flex flex-col gap-2.5 pointer-events-none max-w-[calc(100vw-2rem)] w-88"
           aria-live="polite"
           aria-label="Notificaciones"
         >
@@ -54,7 +54,7 @@ export function ToastProvider({ children }) {
                   t.action.onClick();
                 }
               }}
-              className={`toast pointer-events-auto flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xl shadow-navy-900/20 animate-fade-up ${
+              className={`toast pointer-events-auto flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xl shadow-navy-900/20 animate-fade-in ${
                 t.action ? 'cursor-pointer hover:border-gold-400/80 transition-colors' : ''
               }`}
             >

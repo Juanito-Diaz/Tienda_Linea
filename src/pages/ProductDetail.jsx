@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ChevronRight, Leaf, PackageCheck, RotateCcw, Truck } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { Leaf, PackageCheck, RotateCcw, Truck } from 'lucide-react';
 import ProductBuyBox from '../components/ProductBuyBox';
 import ProductCard from '../components/ProductCard';
 import { GamaBadge, SmartImage, Stars } from '../components/ui';
@@ -69,14 +69,6 @@ export default function ProductDetail() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <nav aria-label="Ruta de navegación" className="mb-6 flex flex-wrap items-center gap-1 text-sm text-slate-500">
-        <Link to="/" className="hover:text-navy-900">Inicio</Link>
-        <ChevronRight className="size-4" />
-        <Link to={`/catalogo?categoria=${cat.id}`} className="hover:text-navy-900">{cat.name}</Link>
-        <ChevronRight className="size-4" />
-        <span aria-current="page" className="text-navy-900 line-clamp-1">{product.name}</span>
-      </nav>
-
       <div className="grid gap-10 lg:grid-cols-2">
         {/* Galería con miniaturas y zoom seguro */}
         <div className="flex flex-col-reverse gap-4 sm:flex-row">

@@ -147,7 +147,6 @@ export default function Catalog() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <header className="mb-8">
-        <nav aria-label="Ruta de navegación" className="mb-2 text-xs text-slate-500">Inicio / Tienda {cat && `/ ${cat.name}`}</nav>
         <h1 className="section-title">{cat ? cat.name : q ? `Resultados para “${params.get('q')}”` : 'Todos los productos'}</h1>
         {cat && <p className="mt-1 text-slate-500">{cat.tagline}</p>}
       </header>

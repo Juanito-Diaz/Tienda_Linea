@@ -64,9 +64,6 @@ export default function Orders() {
     <div className="mx-auto max-w-7xl px-4 py-10">
       {/* Encabezado estilo Amazon / Portal de Logística */}
       <header className="mb-8">
-        <nav aria-label="Navegación" className="mb-2 text-xs text-slate-500">
-          Inicio / Mi Cuenta / <span className="text-navy-900 font-semibold">Devoluciones y Pedidos</span>
-        </nav>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="section-title">Mis Pedidos y Devoluciones</h1>
