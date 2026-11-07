@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingSupport from './components/FloatingSupport';
@@ -19,6 +19,7 @@ import { useStore } from './context/StoreContext';
 import { useToast } from './context/ToastContext';
 import {
   computeSimTime,
+  getOrderStage,
   getTrackingState,
   initOrderTracking,
   playDeliveryChime,
@@ -42,6 +43,8 @@ function ScrollToTop() {
 function BackgroundTrackingNotifier() {
   const { orders } = useStore();
   const toast = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!orders || orders.length === 0) return;
@@ -56,21 +59,30 @@ function BackgroundTrackingNotifier() {
         if (!track || track.delivered || track.paused) return;
 
         const currentSimTime = computeSimTime(track);
+        const stage = getOrderStage(currentSimTime);
+        const lastNotifiedStage = track.notifiedStage ?? (track.notified ? 4 : 0);
+        const isWatchingThisOrder = location.pathname.includes(encodeURIComponent(order.number));
 
         if (currentSimTime >= TOTAL_TRACKING_TIME) {
           saveTrackingState(order.number, {
             accumulatedTime: TOTAL_TRACKING_TIME,
             lastTick: Date.now(),
             delivered: true,
-            deliveredAt: new Date().toISOString(),
+            deliveredAt: track.deliveredAt || new Date().toISOString(),
             notified: true,
+            notifiedStage: 4,
           });
 
           if (!track.notified) {
             toast({
               title: '¡Tu paquete ha llegado! 📦🎉',
-              description: `El pedido ${order.number} fue entregado con éxito en tu domicilio.`,
+              description: `El pedido ${order.number} fue entregado con éxito en tu domicilio. Haz clic para ver los detalles.`,
               type: 'success',
+              duration: 8000,
+              action: {
+                label: 'Rastrear pedido 🚚',
+                onClick: () => navigate(`/rastreo/${encodeURIComponent(order.number)}`),
+              },
             });
             playDeliveryChime();
             sendBrowserNotification(
@@ -88,12 +100,58 @@ function BackgroundTrackingNotifier() {
             accumulatedTime: currentSimTime,
             lastTick: Date.now(),
           });
+
+          // Notificar cambio de fase únicamente si el usuario no está viendo activamente este pedido
+          if (stage > lastNotifiedStage) {
+            saveTrackingState(order.number, { notifiedStage: stage });
+
+            if (!isWatchingThisOrder) {
+              if (stage === 1) {
+                toast({
+                  title: '📦 Pedido en preparación',
+                  description: `Orden ${order.number}: Picking y empaque especializado en el Hub central.`,
+                  type: 'info',
+                  duration: 5000,
+                  action: {
+                    label: 'Rastrear pedido 🚚',
+                    onClick: () => navigate(`/rastreo/${encodeURIComponent(order.number)}`),
+                  },
+                });
+              } else if (stage === 2) {
+                toast({
+                  title: '🚚 ¡Tu pedido va en camino!',
+                  description: `Orden ${order.number}: La camioneta de reparto ha salido hacia tu domicilio.`,
+                  type: 'info',
+                  duration: 5000,
+                  action: {
+                    label: 'Seguir en mapa 📍',
+                    onClick: () => navigate(`/rastreo/${encodeURIComponent(order.number)}`),
+                  },
+                });
+                sendBrowserNotification(
+                  '🚚 Pedido en camino',
+                  `La camioneta con la orden ${order.number} va en camino a tu domicilio.`
+                );
+              } else if (stage === 3) {
+                toast({
+                  title: '📍 Repartidor en ruta final',
+                  description: `Orden ${order.number}: Tu repartidor está a pocas calles de tu domicilio.`,
+                  type: 'info',
+                  duration: 5000,
+                  action: {
+                    label: 'Ver ubicación en vivo 🗺️',
+                    onClick: () => navigate(`/rastreo/${encodeURIComponent(order.number)}`),
+                  },
+                });
+              }
+            }
+          }
         }
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [orders, toast]);
+  }, [orders, toast, navigate, location.pathname]);
 
   return null;
 }

@@ -1,8 +1,8 @@
 import { Lock } from 'lucide-react';
-import { formatMXN, PACKAGING, SHIPPING_FREE_FROM, useStore } from '../../context/StoreContext';
+import { formatMXN, PACKAGING, SHIPPING_FREE_FROM, DELIVERY_METHODS, useStore } from '../../context/StoreContext';
 
 export default function OrderSummary({ children, compact = false }) {
-  const { lines, totals, packaging } = useStore();
+  const { lines, totals, packaging, deliveryMethod } = useStore();
   const remaining = SHIPPING_FREE_FROM - totals.subtotal;
 
   return (
@@ -26,7 +26,19 @@ export default function OrderSummary({ children, compact = false }) {
         <div className="flex justify-between"><dt className="text-slate-500">Subtotal ({totals.count} art.)</dt><dd>{formatMXN(totals.base)}</dd></div>
         <div className="flex justify-between"><dt className="text-slate-500">IVA (16%)</dt><dd>{formatMXN(totals.tax)}</dd></div>
         <div className="flex justify-between"><dt className="text-slate-500">{PACKAGING[packaging].label}</dt><dd>{totals.pack ? formatMXN(totals.pack) : 'Gratis'}</dd></div>
-        <div className="flex justify-between"><dt className="text-slate-500">Envío</dt><dd className={totals.shipping ? '' : 'font-semibold text-mint-500'}>{totals.shipping ? formatMXN(totals.shipping) : 'Gratis'}</dd></div>
+        <div className="flex justify-between items-center">
+          <dt className="text-slate-500">
+            <span>Envío</span>
+            {deliveryMethod !== 'estandar' && (
+              <span className="block text-[11px] font-medium text-navy-800">
+                {DELIVERY_METHODS[deliveryMethod]?.label || deliveryMethod}
+              </span>
+            )}
+          </dt>
+          <dd className={totals.shipping ? 'font-semibold text-navy-900' : 'font-semibold text-mint-500'}>
+            {totals.shipping ? formatMXN(totals.shipping) : 'Gratis'}
+          </dd>
+        </div>
         <div className="flex justify-between border-t border-slate-100 pt-3 text-base font-bold text-navy-900"><dt>Total</dt><dd>{formatMXN(totals.total)}</dd></div>
       </dl>
       {remaining > 0 && totals.subtotal > 0 && (

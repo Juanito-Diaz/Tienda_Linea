@@ -44,8 +44,18 @@ export function initOrderTracking(orderNumber) {
       paused: false,
       delivered: false,
       notified: false,
+      notifiedStage: 0,
     });
   }
+}
+
+export function getOrderStage(simTime) {
+  if (simTime >= TOTAL_TRACKING_TIME) return 4;
+  const progress = Math.max(0, Math.min(1, (simTime - DEPART) / TRAVEL));
+  if (progress >= 0.75) return 3;
+  if (simTime >= DEPART) return 2;
+  if (simTime >= PREP_START) return 1;
+  return 0;
 }
 
 export function computeSimTime(track) {

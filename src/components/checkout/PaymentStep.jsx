@@ -24,12 +24,63 @@ const formatExp = (v) => {
   return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;
 };
 // Validación amigable para demo escolar:
-// Requiere mínimo 13 a 16 dígitos numéricos y que empiece con 4 (VISA) o 5/2 (Mastercard).
+// Requiere entre 13 y 19 dígitos numéricos e identifica VISA, Mastercard o AMEX.
 const isValidCardNumber = (num) => {
   const d = num.replace(/\D/g, '');
   if (d.length < 13 || d.length > 19) return false;
-  // Debe ser VISA (empieza con 4) o Mastercard (empieza con 5 o 2)
-  return /^[245]/.test(d);
+  return /^[2345]/.test(d);
+};
+
+export const getMsiPlansForBrand = (brand, total) => {
+  switch (brand) {
+    case 'Mastercard':
+      return {
+        badge: '✨ Promo Mastercard: hasta 12 MSI',
+        promoClass: 'text-amber-800 bg-amber-50 border-amber-200',
+        options: [
+          { months: '1', label: 'Una sola exhibición', min: 0 },
+          { months: '3', label: `3 MSI de ${formatMXN(total / 3)}`, min: 600 },
+          { months: '6', label: `6 MSI de ${formatMXN(total / 6)}`, min: 1200 },
+          { months: '12', label: `12 MSI de ${formatMXN(total / 12)}`, min: 1800 },
+        ].filter((o) => total >= o.min),
+      };
+
+    case 'VISA':
+      return {
+        badge: '✨ Beneficio VISA: hasta 9 MSI',
+        promoClass: 'text-blue-800 bg-blue-50 border-blue-200',
+        options: [
+          { months: '1', label: 'Una sola exhibición', min: 0 },
+          { months: '3', label: `3 MSI de ${formatMXN(total / 3)}`, min: 700 },
+          { months: '6', label: `6 MSI de ${formatMXN(total / 6)}`, min: 1400 },
+          { months: '9', label: `9 MSI de ${formatMXN(total / 9)}`, min: 1600 },
+        ].filter((o) => total >= o.min),
+      };
+
+    case 'AMEX':
+      return {
+        badge: '✨ Exclusivo AMEX: hasta 18 MSI',
+        promoClass: 'text-sky-800 bg-sky-50 border-sky-200',
+        options: [
+          { months: '1', label: 'Una sola exhibición', min: 0 },
+          { months: '3', label: `3 MSI de ${formatMXN(total / 3)}`, min: 800 },
+          { months: '6', label: `6 MSI de ${formatMXN(total / 6)}`, min: 1500 },
+          { months: '12', label: `12 MSI de ${formatMXN(total / 12)}`, min: 2400 },
+          { months: '18', label: `18 MSI de ${formatMXN(total / 18)}`, min: 3000 },
+        ].filter((o) => total >= o.min),
+      };
+
+    default:
+      return {
+        badge: 'Ingresa tu tarjeta para consultar MSI disponibles',
+        promoClass: 'text-slate-600 bg-slate-50 border-slate-200',
+        options: [
+          { months: '1', label: 'Una sola exhibición', min: 0 },
+          { months: '3', label: `3 MSI de ${formatMXN(total / 3)}`, min: 800 },
+          { months: '6', label: `6 MSI de ${formatMXN(total / 6)}`, min: 1500 },
+        ].filter((o) => total >= o.min),
+      };
+  }
 };
 
 export default function PaymentStep({ onBack, onPay }) {
@@ -119,6 +170,15 @@ export default function PaymentStep({ onBack, onPay }) {
   };
 
   const brand = brandOf(card.number);
+  const msiPlan = getMsiPlansForBrand(brand, totals.total);
+
+  // Asegurar que si el usuario cambia de tarjeta o monto y el MSI ya no está disponible, regrese a '1'
+  useEffect(() => {
+    const isCurrentAllowed = msiPlan.options.some((o) => o.months === String(card.msi));
+    if (!isCurrentAllowed) {
+      setCard((c) => ({ ...c, msi: '1' }));
+    }
+  }, [brand, totals.total, msiPlan.options, card.msi]);
 
   const removeCard = (id) => {
     const updated = savedCards.filter((c) => c.id !== id);
@@ -140,7 +200,7 @@ export default function PaymentStep({ onBack, onPay }) {
 
     if (method === 'tarjeta') {
       if (!isValidCardNumber(card.number)) {
-        return setError('Ingresa un número de tarjeta válido de 16 dígitos que empiece con 4 (VISA) o 5/2 (Mastercard).');
+        return setError('Ingresa un número de tarjeta válido (VISA, Mastercard o AMEX).');
       }
       const [mm, yy] = card.exp.split('/').map(Number);
       const now = new Date();
@@ -466,19 +526,33 @@ export default function PaymentStep({ onBack, onPay }) {
                   </label>
                 )}
 
-                <label>
-                  <span className="label">Meses sin intereses</span>
+                <div className="space-y-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-1">
+                    <span className="label">Meses sin intereses (MSI)</span>
+                    {brand && (
+                      <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${msiPlan.promoClass}`}>
+                        {msiPlan.badge}
+                      </span>
+                    )}
+                  </div>
                   <select
                     value={card.msi}
                     disabled={processing}
                     onChange={(e) => setCard((c) => ({ ...c, msi: e.target.value }))}
                     className="input cursor-pointer disabled:opacity-60"
                   >
-                    <option value="1">Una sola exhibición</option>
-                    {totals.total >= 800 && <option value="3">3 MSI de {formatMXN(totals.total / 3)}</option>}
-                    {totals.total >= 1500 && <option value="6">6 MSI de {formatMXN(totals.total / 6)}</option>}
+                    {msiPlan.options.map((opt) => (
+                      <option key={opt.months} value={opt.months}>
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
-                </label>
+                  {!brand && (
+                    <p className="text-[11px] text-slate-500">
+                      Detectamos las mensualidades sin intereses automáticamente según el banco emisor (Mastercard, VISA o AMEX).
+                    </p>
+                  )}
+                </div>
               </div>
             </section>
           </div>

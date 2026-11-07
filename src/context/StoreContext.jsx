@@ -11,6 +11,29 @@ export const PACKAGING = {
   delicado: { label: 'Empaque para delicados', desc: 'Burbuja + espuma, ideal para cosméticos y vidrio', price: 49 },
   regalo: { label: 'Empaque de regalo premium', desc: 'Caja rígida navy con listón dorado y tarjeta', price: 129 },
 };
+export const DELIVERY_METHODS = {
+  estandar: {
+    id: 'estandar',
+    label: 'Estándar 24 h',
+    desc: 'Siguiente día hábil',
+    surcharge: 0,
+    surchargeLabel: 'Sin costo extra',
+  },
+  express: {
+    id: 'express',
+    label: 'Exprés Hoy Mismo',
+    desc: 'Entrega el mismo día hábil en CDMX y Edo. Méx.',
+    surcharge: 89,
+    surchargeLabel: '+$89.00 MXN',
+  },
+  flash: {
+    id: 'flash',
+    label: 'Flash Prioritario (2-3 h)',
+    desc: 'Repartidor dedicado directo a tu domicilio',
+    surcharge: 149,
+    surchargeLabel: '+$149.00 MXN',
+  },
+};
 export const SHIPPING_FREE_FROM = 699;
 export const SHIPPING_COST = 119;
 
@@ -42,6 +65,7 @@ export function StoreProvider({ children }) {
   const [cart, setCart] = useState(() => load(`5a-cart-${userKey}`, []));
   const [orders, setOrders] = useState(() => load(`5a-orders-${userKey}`, []));
   const [packaging, setPackaging] = useState('estandar');
+  const [deliveryMethod, setDeliveryMethod] = useState('estandar');
 
   // Cuando cambia el usuario actual (login, logout o cambio de cuenta), cargamos su carrito y sus pedidos
   useEffect(() => {
@@ -83,14 +107,26 @@ export function StoreProvider({ children }) {
 
   const totals = useMemo(() => {
     const subtotal = lines.reduce((s, l) => s + l.total, 0);
-    const pack = lines.length ? PACKAGING[packaging].price : 0;
-    const shipping = subtotal === 0 || subtotal >= SHIPPING_FREE_FROM ? 0 : SHIPPING_COST;
+    const pack = lines.length ? PACKAGING[packaging]?.price || 0 : 0;
+    const baseShipping = subtotal === 0 || subtotal >= SHIPPING_FREE_FROM ? 0 : SHIPPING_COST;
+    const deliveryExtra = lines.length ? (DELIVERY_METHODS[deliveryMethod]?.surcharge || 0) : 0;
+    const shipping = lines.length ? baseShipping + deliveryExtra : 0;
     // Precios mostrados con IVA incluido; desglosamos el impuesto.
     const base = subtotal / (1 + TAX_RATE);
     const tax = subtotal - base;
     const total = subtotal + pack + shipping;
-    return { subtotal, base, tax, pack, shipping, total, count: lines.reduce((s, l) => s + l.qty, 0) };
-  }, [lines, packaging]);
+    return {
+      subtotal,
+      base,
+      tax,
+      pack,
+      baseShipping,
+      deliveryExtra,
+      shipping,
+      total,
+      count: lines.reduce((s, l) => s + l.qty, 0),
+    };
+  }, [lines, packaging, deliveryMethod]);
 
   const placeOrder = useCallback(
     ({ shipping, payment }) => {
@@ -109,7 +145,11 @@ export function StoreProvider({ children }) {
         })),
         totals,
         packaging,
-        shipping,
+        deliveryMethod,
+        shipping: {
+          ...shipping,
+          entrega: deliveryMethod,
+        },
         payment,
       };
       initOrderTracking(number);
@@ -117,7 +157,7 @@ export function StoreProvider({ children }) {
       setCart([]);
       return order;
     },
-    [lines, totals, packaging, userKey]
+    [lines, totals, packaging, deliveryMethod, userKey]
   );
 
   const value = {
@@ -126,6 +166,8 @@ export function StoreProvider({ children }) {
     totals,
     packaging,
     setPackaging,
+    deliveryMethod,
+    setDeliveryMethod,
     addToCart,
     updateQty,
     removeLine,

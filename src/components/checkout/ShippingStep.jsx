@@ -3,18 +3,21 @@ import { ArrowLeft, ArrowRight, MapPin, Zap, Truck, Clock } from 'lucide-react';
 import MapPicker from '../MapPicker';
 import OrderSummary from './OrderSummary';
 import { reverseGeocode } from '../../lib/geo';
+import { useStore, DELIVERY_METHODS } from '../../context/StoreContext';
 
 const ESTADOS = ['Ciudad de México', 'Estado de México', 'Jalisco', 'Nuevo León', 'Puebla', 'Querétaro', 'Veracruz', 'Yucatán', 'Chiapas', 'Oaxaca', 'Guanajuato', 'Otro'];
 
 export const DELIVERY = {
-  express: { label: 'Exprés hoy', desc: 'Pedidos antes de las 14:00 · CDMX', icon: Zap },
-  estandar: { label: 'Estándar 24 h', desc: 'Siguiente día hábil', icon: Truck },
-  programada: { label: 'Programada', desc: 'Elige fecha y franja horaria', icon: Clock },
+  estandar: { label: 'Estándar 24 h', desc: 'Siguiente día hábil', badge: 'Sin cargo extra', icon: Truck },
+  express: { label: 'Exprés Hoy', desc: 'Mismo día hábil (CDMX y Edo. Méx.)', badge: '+$89.00 MXN', icon: Zap },
+  flash: { label: 'Flash 2-3 h', desc: 'Repartidor dedicado prioritario', badge: '+$149.00 MXN', icon: Clock },
 };
 
 export default function ShippingStep({ data, onBack, onNext }) {
+  const { deliveryMethod, setDeliveryMethod } = useStore();
   const [form, setForm] = useState(() => ({
     ...data,
+    entrega: deliveryMethod || data?.entrega || 'estandar',
     telefono: (data?.telefono || '').replace(/\D/g, '').slice(0, 10),
   }));
   const [geoMsg, setGeoMsg] = useState('');
@@ -54,7 +57,7 @@ export default function ShippingStep({ data, onBack, onNext }) {
       document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    onNext(form);
+    onNext({ ...form, entrega: deliveryMethod });
   };
 
   const field = (k, label, { wide, ...props } = {}) => (
@@ -110,32 +113,53 @@ export default function ShippingStep({ data, onBack, onNext }) {
 
         <fieldset className="card p-6">
           <legend className="sr-only">Tipo de entrega</legend>
-          <h2 className="mb-4 font-bold text-navy-900">Tipo de entrega</h2>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {Object.entries(DELIVERY).map(([k, d]) => (
-              <label key={k} className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition ${form.entrega === k ? 'border-gold-500 bg-gold-100/40' : 'border-slate-200 hover:border-slate-300'}`}>
-                <input type="radio" name="entrega" checked={form.entrega === k} onChange={() => setForm((f) => ({ ...f, entrega: k }))} className="sr-only" />
-                <d.icon className={`size-5 shrink-0 ${form.entrega === k ? 'text-gold-700' : 'text-slate-400'}`} />
-                <span>
-                  <span className="block text-sm font-semibold text-navy-900">{d.label}</span>
-                  <span className="text-xs text-slate-500">{d.desc}</span>
-                </span>
-              </label>
-            ))}
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-bold text-navy-900">Tipo de entrega</h2>
+            <span className="text-xs text-slate-500">Elige la velocidad para tu pedido</span>
           </div>
-          {form.entrega === 'programada' && (
-            <div className="mt-4 grid animate-fade-in gap-4 sm:grid-cols-2">
-              <label><span className="label">Fecha</span><input type="date" value={form.fecha ?? ''} onChange={set('fecha')} min={new Date(Date.now() + 864e5).toISOString().slice(0, 10)} className="input" required /></label>
-              <label>
-                <span className="label">Franja horaria</span>
-                <select value={form.franja ?? '9-13'} onChange={set('franja')} className="input cursor-pointer">
-                  <option value="9-13">09:00 – 13:00</option>
-                  <option value="13-17">13:00 – 17:00</option>
-                  <option value="17-21">17:00 – 21:00</option>
-                </select>
-              </label>
-            </div>
-          )}
+          <div className="grid gap-3 sm:grid-cols-3">
+            {Object.entries(DELIVERY).map(([k, d]) => {
+              const isSelected = deliveryMethod === k;
+              return (
+                <label
+                  key={k}
+                  className={`flex cursor-pointer flex-col justify-between gap-3 rounded-2xl border-2 p-4 transition ${
+                    isSelected ? 'border-navy-900 bg-navy-50/40 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <input
+                      type="radio"
+                      name="entrega"
+                      checked={isSelected}
+                      onChange={() => {
+                        setDeliveryMethod(k);
+                        setForm((f) => ({ ...f, entrega: k }));
+                      }}
+                      className="sr-only"
+                    />
+                    <div className="flex items-center gap-2">
+                      <d.icon className={`size-5 shrink-0 ${isSelected ? 'text-navy-900' : 'text-slate-400'}`} />
+                      <span className="block text-sm font-bold text-navy-900">{d.label}</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">{d.desc}</p>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
+                      d.badge.includes('+') ? 'bg-amber-100 text-amber-800' : 'bg-mint-100 text-mint-800'
+                    }`}>
+                      {d.badge}
+                    </span>
+                    {isSelected && (
+                      <span className="text-[11px] font-bold text-navy-900 flex items-center gap-1">
+                        ✓ Seleccionado
+                      </span>
+                    )}
+                  </div>
+                </label>
+              );
+            })}
+          </div>
         </fieldset>
       </div>
 

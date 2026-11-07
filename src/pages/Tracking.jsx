@@ -242,15 +242,22 @@ export default function Tracking() {
     return () => window.removeEventListener('5a-tracking-update', handler);
   }, [order?.number]);
 
-  // Si se detecta entrega, asegurar guardado
+  // Sincronizar estado y fase en localStorage
   useEffect(() => {
-    if (order?.number && stage === 4) {
-      saveTrackingState(order.number, {
-        accumulatedTime: TOTAL_TRACKING_TIME,
-        lastTick: Date.now(),
-        delivered: true,
-        deliveredAt: new Date().toISOString(),
-      });
+    if (order?.number) {
+      if (stage === 4) {
+        saveTrackingState(order.number, {
+          accumulatedTime: TOTAL_TRACKING_TIME,
+          lastTick: Date.now(),
+          delivered: true,
+          deliveredAt: new Date().toISOString(),
+          notifiedStage: 4,
+        });
+      } else {
+        saveTrackingState(order.number, {
+          notifiedStage: stage,
+        });
+      }
     }
   }, [order?.number, stage]);
 
@@ -264,6 +271,7 @@ export default function Tracking() {
         paused: false,
         delivered: false,
         notified: false,
+        notifiedStage: 0,
       });
     }
     simRef.current = 0;

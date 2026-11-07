@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Pause, Play, ShieldCheck, Thermometer, Truck } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Pause, Play, ShieldCheck, Truck } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { SmartImage } from '../components/ui';
 import { CATEGORIES, PRODUCTS, SLIDES } from '../data/products';
@@ -82,11 +82,10 @@ export default function Home() {
 
       {/* Propuesta de valor logística */}
       <section className="relative z-10 mx-auto mt-8 sm:mt-12 max-w-7xl px-4">
-        <ul className="card grid divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
+        <ul className="card grid divide-y divide-slate-100 sm:grid-cols-3 sm:divide-y-0 lg:grid-cols-3 lg:divide-x">
           {[
             [Truck, 'Entrega en 24 h', 'CDMX y zona metropolitana'],
             [MapPin, 'GPS en tiempo real', 'Sigue tu camioneta en el mapa'],
-            [Thermometer, 'Cadena controlada', 'Cosméticos y café protegidos'],
             [ShieldCheck, '100% originales', 'Distribuidores oficiales'],
           ].map(([Icon, t, d]) => (
             <li key={t} className="flex items-center gap-4 p-5">

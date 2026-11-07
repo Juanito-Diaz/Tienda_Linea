@@ -24,12 +24,12 @@ export function ToastProvider({ children }) {
   }, []);
 
   const toast = useCallback(
-    ({ title, description, type = 'success', image, duration = 3500 }) => {
+    ({ title, description, type = 'success', image, duration = 4000, action }) => {
       const id =
         typeof crypto !== 'undefined' && crypto.randomUUID
           ? crypto.randomUUID()
           : `toast-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      setToasts((t) => [...t.slice(-3), { id, title, description, type, image }]);
+      setToasts((t) => [...t.slice(-3), { id, title, description, type, image, action }]);
       timers.current.set(id, setTimeout(() => dismiss(id), duration));
     },
     [dismiss]
@@ -48,7 +48,15 @@ export function ToastProvider({ children }) {
             <div
               key={t.id}
               role="status"
-              className="toast pointer-events-auto flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xl shadow-navy-900/20 animate-fade-up"
+              onClick={() => {
+                if (t.action?.onClick) {
+                  dismiss(t.id);
+                  t.action.onClick();
+                }
+              }}
+              className={`toast pointer-events-auto flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xl shadow-navy-900/20 animate-fade-up ${
+                t.action ? 'cursor-pointer hover:border-gold-400/80 transition-colors' : ''
+              }`}
             >
               {t.image ? (
                 <img src={t.image} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
@@ -63,10 +71,28 @@ export function ToastProvider({ children }) {
                 {t.description && (
                   <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">{t.description}</p>
                 )}
+                {t.action && (
+                  <div className="mt-2.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        dismiss(t.id);
+                        t.action.onClick();
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-gold-600 active:scale-95 transition-all cursor-pointer"
+                    >
+                      {t.action.label}
+                    </button>
+                  </div>
+                )}
               </div>
               <button
                 type="button"
-                onClick={() => dismiss(t.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dismiss(t.id);
+                }}
                 className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-navy-900 cursor-pointer"
                 aria-label="Cerrar notificación"
               >

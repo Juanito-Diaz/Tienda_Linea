@@ -41,7 +41,7 @@ export default function ConfirmationStep({ order }) {
           </div>
           <div>
             <h3 className="label flex items-center gap-1.5"><Truck className="size-3.5" /> Envío y pago</h3>
-            <p className="text-slate-600">{DELIVERY[s.entrega]?.label}{s.fecha ? ` · ${s.fecha}` : ''}</p>
+            <p className="text-slate-600">{DELIVERY[s.entrega]?.label || 'Estándar 24 h'}</p>
             <p className="text-slate-600">{PACKAGING[order.packaging].label}</p>
             <p className="mt-2 font-semibold text-navy-900">{order.payment.label}</p>
             <p className="text-slate-600">{order.payment.detail}</p>
