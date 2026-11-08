@@ -183,6 +183,12 @@ export default function Tracking() {
   useEffect(() => {
     if (order?.number) {
       initOrderTracking(order.number);
+      const track = getTrackingState(order.number);
+      const curTime = track ? computeSimTime(track) : 0;
+      simRef.current = curTime;
+      setSimTime(curTime);
+      setPlaying(!track?.delivered && !track?.paused && curTime < TOTAL_TRACKING_TIME);
+      if (track?.speed) setSpeed(track.speed);
     }
   }, [order?.number]);
 
@@ -343,7 +349,7 @@ export default function Tracking() {
 
   // Bucle de animación: mueve el marcador imperativamente (60 fps) y sincroniza la UI (~10 fps)
   useEffect(() => {
-    if (!route || !playing) return;
+    if (!route || !playing || !order) return;
     let raf;
     let last = performance.now();
     let lastUi = 0;

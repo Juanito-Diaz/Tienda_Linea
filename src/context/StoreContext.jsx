@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { getProduct } from '../data/products';
 import { useAuth } from './AuthContext';
-import { initOrderTracking } from '../lib/trackingManager';
+import { initOrderTracking, computeSimTime, getTrackingState, saveTrackingState } from '../lib/trackingManager';
 
 const StoreContext = createContext(null);
 
@@ -90,8 +90,8 @@ export function StoreProvider({ children }) {
   // Inicialización: si hay usuario autenticado, cargar su carrito; si no hay usuario, el carrito inicia vacío []
   const [cart, setCart] = useState(() => (userId ? loadUserCart(userId) : []));
 
-  // Pedidos unificados en '5a-orders' con migración de pedidos previos
-  const [orders, setOrders] = useState(() => {
+  // Todos los pedidos persistidos en el almacenamiento
+  const [allOrders, setAllOrders] = useState(() => {
     const unified = load('5a-orders', null);
     if (unified !== null) return unified;
     const guestOrders = load('5a-orders-guest', []);
@@ -105,26 +105,67 @@ export function StoreProvider({ children }) {
     });
   });
 
+  // Filtrar pedidos visibles según la sesión actual:
+  // - Usuario autenticado: sus pedidos
+  // - No autenticado (invitado / cerró sesión): solo pedidos hechos como invitado (o [] si no hay)
+  const orders = useMemo(() => {
+    if (!userId) {
+      return allOrders.filter((o) => o.userId === 'guest');
+    }
+    return allOrders.filter((o) => o.userId === userId || (!o.userId && userId === 'u-1'));
+  }, [allOrders, userId]);
+
   const [packaging, setPackaging] = useState('estandar');
   const [deliveryMethod, setDeliveryMethod] = useState('estandar');
 
   // Gestión de sesión:
-  // - Al cerrar sesión: los productos se van (el carrito queda vacío)
-  // - Al iniciar sesión: los productos guardados de la cuenta vuelven a aparecer
+  // - Al cerrar sesión: los productos se van y se PAUSAN/CONGELAN los pedidos en curso en su progreso actual
+  // - Al iniciar sesión: los productos guardados de la cuenta vuelven a aparecer y se REANUDAN los pedidos en curso
   useEffect(() => {
     const prevUserId = prevUserIdRef.current;
     if (prevUserId !== userId) {
       prevUserIdRef.current = userId;
+
       if (userId) {
         // Inició sesión -> Cargar los productos guardados de esta cuenta
         const userSaved = loadUserCart(userId);
         setCart(userSaved);
+
+        // Reanudar el seguimiento de los pedidos activos de este usuario que hayan sido pausados al salir
+        allOrders
+          .filter((o) => o.userId === userId || (!o.userId && userId === 'u-1'))
+          .forEach((o) => {
+            const track = getTrackingState(o.number);
+            if (track && !track.delivered) {
+              saveTrackingState(o.number, {
+                paused: false,
+                lastTick: Date.now(),
+              });
+            }
+          });
       } else {
         // Cerró sesión -> Se vacía el carrito en pantalla (sin usuario = sin artículos)
         setCart([]);
+
+        // Pausar y congelar los pedidos del usuario que acaba de salir en su progreso exacto
+        if (prevUserId) {
+          allOrders
+            .filter((o) => o.userId === prevUserId || (!o.userId && prevUserId === 'u-1'))
+            .forEach((o) => {
+              const track = getTrackingState(o.number);
+              if (track && !track.delivered) {
+                const currentSim = computeSimTime(track);
+                saveTrackingState(o.number, {
+                  accumulatedTime: currentSim,
+                  paused: true,
+                  lastTick: Date.now(),
+                });
+              }
+            });
+        }
       }
     }
-  }, [userId]);
+  }, [userId, allOrders]);
 
   // Persistir cambios en el carrito de la cuenta del usuario autenticado
   useEffect(() => {
@@ -134,8 +175,8 @@ export function StoreProvider({ children }) {
   }, [cart, userId]);
 
   useEffect(() => {
-    localStorage.setItem('5a-orders', JSON.stringify(orders));
-  }, [orders]);
+    localStorage.setItem('5a-orders', JSON.stringify(allOrders));
+  }, [allOrders]);
 
   const addToCart = useCallback((productId, variant, qty = 1, extra) => {
     const key = lineKey(productId, variant, extra);
@@ -219,7 +260,7 @@ export function StoreProvider({ children }) {
         payment,
       };
       initOrderTracking(number);
-      setOrders((prev) => [order, ...prev]);
+      setAllOrders((prev) => [order, ...prev]);
       setCart([]);
       if (userId) {
         localStorage.setItem(`5a-cart-${userId}`, JSON.stringify([]));

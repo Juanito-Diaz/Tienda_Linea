@@ -74,29 +74,21 @@ export default function FloatingGpsTracker() {
   const [expanded, setExpanded] = useState(false);
   const [route, setRoute] = useState(null);
 
-  // Orden activa: toma la más reciente del usuario o la orden de demostración 5A
+  // Orden activa: toma la más reciente del usuario actual
   const activeOrder = useMemo(() => {
     if (orders && orders.length > 0) return orders[0];
-    return {
-      number: '#5A-LOG-78214',
-      shipping: {
-        nombre: 'Cliente 5A',
-        calle: 'Av. Ámsterdam',
-        numero: '210',
-        colonia: 'Hipódromo Condesa',
-        coords: DEMO_DESTINATION,
-      },
-      lines: [{ name: 'Base Luminous Silk Foundation', brand: 'Maison Lumière', qty: 1 }],
-      totals: { total: 1290 },
-    };
+    return null;
   }, [orders]);
 
-  const orderNumber = activeOrder.number;
-  const destination = activeOrder.shipping?.coords || DEMO_DESTINATION;
+  const orderNumber = activeOrder?.number;
+  const destination = activeOrder?.shipping?.coords || null;
 
   // Cargar ruta geográfica
   useEffect(() => {
-    if (!destination) return;
+    if (!destination) {
+      setRoute(null);
+      return;
+    }
     const ctrl = new AbortController();
     fetchRoute([HUB.lat, HUB.lng], [destination.lat, destination.lng], ctrl.signal)
       .then((r) => {
@@ -104,7 +96,7 @@ export default function FloatingGpsTracker() {
       })
       .catch(() => {});
     return () => ctrl.abort();
-  }, [destination.lat, destination.lng]);
+  }, [destination?.lat, destination?.lng]);
 
   // Asegurar inicialización en trackingManager
   useEffect(() => {
@@ -115,14 +107,28 @@ export default function FloatingGpsTracker() {
 
   // Estado del tiempo de simulación local y velocidad
   const [simTime, setSimTime] = useState(() => {
+    if (!orderNumber) return 0;
     const track = getTrackingState(orderNumber);
     return track ? computeSimTime(track) : 0;
   });
 
   const [speed, setSpeed] = useState(() => {
+    if (!orderNumber) return 1;
     const track = getTrackingState(orderNumber);
     return track?.speed || 1;
   });
+
+  useEffect(() => {
+    if (orderNumber) {
+      const track = getTrackingState(orderNumber);
+      if (track) {
+        setSimTime(computeSimTime(track));
+        if (track.speed) setSpeed(track.speed);
+      }
+    } else {
+      setSimTime(0);
+    }
+  }, [orderNumber]);
 
   const changeSpeed = (s) => {
     setSpeed(s);
@@ -154,7 +160,7 @@ export default function FloatingGpsTracker() {
 
   // Actualización periódica fluida de la posición y la etapa (150 ms para ultra fluidez incluso a 12x)
   useEffect(() => {
-    if (isTrackingPage) return;
+    if (isTrackingPage || !orderNumber) return;
 
     const interval = setInterval(() => {
       let track = getTrackingState(orderNumber);
@@ -162,7 +168,7 @@ export default function FloatingGpsTracker() {
         initOrderTracking(orderNumber);
         track = getTrackingState(orderNumber);
       }
-      if (!track) return;
+      if (!track || track.paused) return;
 
       if (track.speed && track.speed !== speed) {
         setSpeed(track.speed);
@@ -202,7 +208,7 @@ export default function FloatingGpsTracker() {
     return () => clearInterval(interval);
   }, [orderNumber, isTrackingPage, speed]);
 
-  if (isTrackingPage) return null;
+  if (isTrackingPage || !activeOrder) return null;
 
   const progress = Math.max(0, Math.min(1, (simTime - DEPART) / TRAVEL));
   const isDelivered = simTime >= TOTAL_TRACKING_TIME;
