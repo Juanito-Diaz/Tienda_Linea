@@ -32,17 +32,18 @@ const isValidCardNumber = (num) => {
 };
 
 export const getMsiPlansForBrand = (brand, total) => {
+  const safeTotal = typeof total === 'number' && total > 0 ? total : 0;
   switch (brand) {
     case 'Mastercard':
       return {
         badge: '✨ Promo Mastercard: hasta 12 MSI',
         promoClass: 'text-amber-800 bg-amber-50 border-amber-200',
         options: [
-          { months: '1', label: 'Una sola exhibición', min: 0 },
-          { months: '3', label: `3 MSI de ${formatMXN(total / 3)}`, min: 600 },
-          { months: '6', label: `6 MSI de ${formatMXN(total / 6)}`, min: 1200 },
-          { months: '12', label: `12 MSI de ${formatMXN(total / 12)}`, min: 1800 },
-        ].filter((o) => total >= o.min),
+          { months: '1', label: 'Una sola exhibición' },
+          { months: '3', label: `3 MSI de ${formatMXN(safeTotal / 3)}` },
+          { months: '6', label: `6 MSI de ${formatMXN(safeTotal / 6)}` },
+          { months: '12', label: `12 MSI de ${formatMXN(safeTotal / 12)}` },
+        ],
       };
 
     case 'VISA':
@@ -50,11 +51,11 @@ export const getMsiPlansForBrand = (brand, total) => {
         badge: '✨ Beneficio VISA: hasta 9 MSI',
         promoClass: 'text-blue-800 bg-blue-50 border-blue-200',
         options: [
-          { months: '1', label: 'Una sola exhibición', min: 0 },
-          { months: '3', label: `3 MSI de ${formatMXN(total / 3)}`, min: 700 },
-          { months: '6', label: `6 MSI de ${formatMXN(total / 6)}`, min: 1400 },
-          { months: '9', label: `9 MSI de ${formatMXN(total / 9)}`, min: 1600 },
-        ].filter((o) => total >= o.min),
+          { months: '1', label: 'Una sola exhibición' },
+          { months: '3', label: `3 MSI de ${formatMXN(safeTotal / 3)}` },
+          { months: '6', label: `6 MSI de ${formatMXN(safeTotal / 6)}` },
+          { months: '9', label: `9 MSI de ${formatMXN(safeTotal / 9)}` },
+        ],
       };
 
     case 'AMEX':
@@ -62,23 +63,23 @@ export const getMsiPlansForBrand = (brand, total) => {
         badge: '✨ Exclusivo AMEX: hasta 18 MSI',
         promoClass: 'text-sky-800 bg-sky-50 border-sky-200',
         options: [
-          { months: '1', label: 'Una sola exhibición', min: 0 },
-          { months: '3', label: `3 MSI de ${formatMXN(total / 3)}`, min: 800 },
-          { months: '6', label: `6 MSI de ${formatMXN(total / 6)}`, min: 1500 },
-          { months: '12', label: `12 MSI de ${formatMXN(total / 12)}`, min: 2400 },
-          { months: '18', label: `18 MSI de ${formatMXN(total / 18)}`, min: 3000 },
-        ].filter((o) => total >= o.min),
+          { months: '1', label: 'Una sola exhibición' },
+          { months: '3', label: `3 MSI de ${formatMXN(safeTotal / 3)}` },
+          { months: '6', label: `6 MSI de ${formatMXN(safeTotal / 6)}` },
+          { months: '12', label: `12 MSI de ${formatMXN(safeTotal / 12)}` },
+          { months: '18', label: `18 MSI de ${formatMXN(safeTotal / 18)}` },
+        ],
       };
 
     default:
       return {
-        badge: 'Ingresa tu tarjeta para consultar MSI disponibles',
+        badge: 'Meses sin intereses disponibles',
         promoClass: 'text-slate-600 bg-slate-50 border-slate-200',
         options: [
-          { months: '1', label: 'Una sola exhibición', min: 0 },
-          { months: '3', label: `3 MSI de ${formatMXN(total / 3)}`, min: 800 },
-          { months: '6', label: `6 MSI de ${formatMXN(total / 6)}`, min: 1500 },
-        ].filter((o) => total >= o.min),
+          { months: '1', label: 'Una sola exhibición' },
+          { months: '3', label: `3 MSI de ${formatMXN(safeTotal / 3)}` },
+          { months: '6', label: `6 MSI de ${formatMXN(safeTotal / 6)}` },
+        ],
       };
   }
 };
@@ -169,7 +170,9 @@ export default function PaymentStep({ onBack, onPay }) {
     }
   };
 
-  const brand = brandOf(card.number);
+  const detectedBrand = brandOf(card.number);
+  const savedCardBrand = selectedCardId !== 'new' ? savedCards.find((c) => c.id === selectedCardId)?.brand : '';
+  const brand = detectedBrand || savedCardBrand || '';
   const msiPlan = getMsiPlansForBrand(brand, totals.total);
 
   // Asegurar que si el usuario cambia de tarjeta o monto y el MSI ya no está disponible, regrese a '1'
@@ -427,33 +430,7 @@ export default function PaymentStep({ onBack, onPay }) {
 
               <div className="grid gap-4">
                 <label>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="label mb-0">Número de tarjeta</span>
-                    {brand && (
-                      <span
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium tracking-normal animate-fade-in transition-all ${
-                          brand === 'VISA'
-                            ? 'border-blue-200 bg-blue-50/90 text-blue-900 shadow-xs'
-                            : brand === 'Mastercard'
-                            ? 'border-amber-200 bg-amber-50/90 text-amber-950 shadow-xs'
-                            : 'border-slate-200 bg-slate-50 text-slate-800 shadow-xs'
-                        }`}
-                      >
-                        {brand === 'Mastercard' && (
-                          <span className="inline-flex items-center -space-x-1" aria-hidden="true">
-                            <span className="size-2.5 rounded-full bg-[#EB001B]" />
-                            <span className="size-2.5 rounded-full bg-[#F79E1B] opacity-95" />
-                          </span>
-                        )}
-                        {brand === 'VISA' && (
-                          <span className="size-1.5 rounded-full bg-blue-600" aria-hidden="true" />
-                        )}
-                        <span className={brand === 'VISA' ? 'font-bold tracking-wider text-[11px] text-blue-700' : 'font-semibold text-xs'}>
-                          {brand}
-                        </span>
-                      </span>
-                    )}
-                  </div>
+                  <span className="label">Número de tarjeta</span>
                   <input
                     value={card.number}
                     onChange={(e) => setCard((c) => ({ ...c, number: formatCard(e.target.value) }))}

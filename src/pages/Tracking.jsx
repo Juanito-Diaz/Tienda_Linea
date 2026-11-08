@@ -13,7 +13,6 @@ import {
   Phone,
   Play,
   RotateCcw,
-  Search,
   Star,
   Truck,
   TriangleAlert,
@@ -144,8 +143,6 @@ export default function Tracking() {
   const navigate = useNavigate();
   const { orders } = useStore();
   const toast = useToast();
-  const [query, setQuery] = useState(orderParam ? decodeURIComponent(orderParam) : '');
-  const [notFound, setNotFound] = useState(false);
 
   const order = useMemo(() => {
     if (orderParam) {
@@ -415,16 +412,6 @@ export default function Tracking() {
   // ---------- Incidencias ----------
   const incidentRef = useRef(null);
 
-  const search = (e) => {
-    e.preventDefault();
-    let q = query.trim().toUpperCase();
-    if (!q) return;
-    if (!q.startsWith('#')) q = '#' + q;
-    const found = orders.find((o) => o.number === q);
-    setNotFound(!found);
-    if (found) navigate(`/rastreo/${encodeURIComponent(found.number)}`);
-  };
-
   const initialPos = route
     ? (isAlreadyDelivered ? route.points[route.points.length - 1] : route.points[0])
     : [HUB.lat, HUB.lng];
@@ -445,12 +432,6 @@ export default function Tracking() {
             </p>
           )}
         </div>
-        {orders.length > 0 && (
-          <form onSubmit={search} className="flex w-full max-w-sm gap-2" role="search">
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="#5A-LOG-12345" aria-label="Número de orden" className="input font-mono" />
-            <button className="btn-primary" aria-label="Buscar orden"><Search className="size-4" /></button>
-          </form>
-        )}
       </header>
 
       {/* Si no hay pedidos en esta cuenta: Estado vacío sin simulación */}
@@ -525,26 +506,6 @@ export default function Tracking() {
         </div>
       ) : (
         <>
-          {notFound && (
-            <p role="alert" className="mb-4 rounded-xl bg-coral-500/10 p-3 text-sm text-coral-500">
-              No encontramos esa orden. Mostrando tu pedido activo más reciente.
-            </p>
-          )}
-
-          {orders.length > 1 && (
-            <div className="mb-6 flex flex-wrap gap-2">
-              {orders.slice(0, 5).map((o) => (
-                <Link
-                  key={o.number}
-                  to={`/rastreo/${encodeURIComponent(o.number)}`}
-                  className={`chip font-mono ${o.number === order?.number ? 'border-navy-900 bg-navy-900 text-white' : 'border-slate-300 bg-white hover:border-navy-900'}`}
-                >
-                  {o.number}
-                </Link>
-              ))}
-            </div>
-          )}
-
       {/* Barra de hitos */}
       <section aria-label="Estado del envío" className="card mb-6 p-5 md:p-6">
         <ol className="grid grid-cols-5 gap-1">

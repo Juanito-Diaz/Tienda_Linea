@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { getProduct } from '../data/products';
 import { useAuth } from './AuthContext';
 import { initOrderTracking } from '../lib/trackingManager';
@@ -57,24 +57,85 @@ export function unitPrice(product, variantValue) {
   return (product.price ?? 0) + (opt?.priceDelta ?? 0);
 }
 
+// Cargar el carrito guardado del usuario con migración limpia
+const loadUserCart = (uid) => {
+  try {
+    const userCart = load(`5a-cart-${uid}`, null);
+    if (userCart !== null && Array.isArray(userCart) && userCart.length > 0) {
+      return userCart;
+    }
+    const tempCart = load('5a-cart', null);
+    if (tempCart !== null && Array.isArray(tempCart) && tempCart.length > 0) {
+      localStorage.setItem(`5a-cart-${uid}`, JSON.stringify(tempCart));
+      localStorage.removeItem('5a-cart');
+      return tempCart;
+    }
+    return userCart || [];
+  } catch {
+    return [];
+  }
+};
+
+// Limpieza de carritos temporales de invitados en localStorage
+try {
+  localStorage.removeItem('5a-cart-guest');
+} catch {}
+
 export function StoreProvider({ children }) {
   const { currentUser } = useAuth();
-  const userKey = currentUser ? currentUser.id : 'guest';
+  const userId = currentUser ? currentUser.id : null;
+  const userKey = userId || 'guest';
+  const prevUserIdRef = useRef(userId);
 
-  // Carritos por usuario: '5a-cart-u-1', '5a-cart-guest', etc.
-  const [cart, setCart] = useState(() => load(`5a-cart-${userKey}`, []));
-  const [orders, setOrders] = useState(() => load(`5a-orders-${userKey}`, []));
+  // Inicialización: si hay usuario autenticado, cargar su carrito; si no hay usuario, el carrito inicia vacío []
+  const [cart, setCart] = useState(() => (userId ? loadUserCart(userId) : []));
+
+  // Pedidos unificados en '5a-orders' con migración de pedidos previos
+  const [orders, setOrders] = useState(() => {
+    const unified = load('5a-orders', null);
+    if (unified !== null) return unified;
+    const guestOrders = load('5a-orders-guest', []);
+    const userOrders = load('5a-orders-u-1', []);
+    const combined = [...userOrders, ...guestOrders];
+    const seen = new Set();
+    return combined.filter((o) => {
+      if (!o?.number || seen.has(o.number)) return false;
+      seen.add(o.number);
+      return true;
+    });
+  });
+
   const [packaging, setPackaging] = useState('estandar');
   const [deliveryMethod, setDeliveryMethod] = useState('estandar');
 
-  // Cuando cambia el usuario actual (login, logout o cambio de cuenta), cargamos su carrito y sus pedidos
+  // Gestión de sesión:
+  // - Al cerrar sesión: los productos se van (el carrito queda vacío)
+  // - Al iniciar sesión: los productos guardados de la cuenta vuelven a aparecer
   useEffect(() => {
-    setCart(load(`5a-cart-${userKey}`, []));
-    setOrders(load(`5a-orders-${userKey}`, []));
-  }, [userKey]);
+    const prevUserId = prevUserIdRef.current;
+    if (prevUserId !== userId) {
+      prevUserIdRef.current = userId;
+      if (userId) {
+        // Inició sesión -> Cargar los productos guardados de esta cuenta
+        const userSaved = loadUserCart(userId);
+        setCart(userSaved);
+      } else {
+        // Cerró sesión -> Se vacía el carrito en pantalla (sin usuario = sin artículos)
+        setCart([]);
+      }
+    }
+  }, [userId]);
 
-  useEffect(() => localStorage.setItem(`5a-cart-${userKey}`, JSON.stringify(cart)), [cart, userKey]);
-  useEffect(() => localStorage.setItem(`5a-orders-${userKey}`, JSON.stringify(orders)), [orders, userKey]);
+  // Persistir cambios en el carrito de la cuenta del usuario autenticado
+  useEffect(() => {
+    if (userId && prevUserIdRef.current === userId) {
+      localStorage.setItem(`5a-cart-${userId}`, JSON.stringify(cart));
+    }
+  }, [cart, userId]);
+
+  useEffect(() => {
+    localStorage.setItem('5a-orders', JSON.stringify(orders));
+  }, [orders]);
 
   const addToCart = useCallback((productId, variant, qty = 1, extra) => {
     const key = lineKey(productId, variant, extra);
@@ -90,7 +151,12 @@ export function StoreProvider({ children }) {
   }, []);
 
   const removeLine = useCallback((key) => setCart((prev) => prev.filter((l) => l.key !== key)), []);
-  const clearCart = useCallback(() => setCart([]), []);
+  const clearCart = useCallback(() => {
+    setCart([]);
+    if (userId) {
+      localStorage.setItem(`5a-cart-${userId}`, JSON.stringify([]));
+    }
+  }, [userId]);
 
   const lines = useMemo(
     () =>
@@ -155,9 +221,12 @@ export function StoreProvider({ children }) {
       initOrderTracking(number);
       setOrders((prev) => [order, ...prev]);
       setCart([]);
+      if (userId) {
+        localStorage.setItem(`5a-cart-${userId}`, JSON.stringify([]));
+      }
       return order;
     },
-    [lines, totals, packaging, deliveryMethod, userKey]
+    [lines, totals, packaging, deliveryMethod, userKey, userId]
   );
 
   const value = {

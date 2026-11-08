@@ -31,11 +31,11 @@ import { buildRoute, DEMO_DESTINATION, fetchRoute, HUB, pointAt } from '../lib/g
 import { homeIcon, hubIcon, TILE_ATTRIBUTION, TILE_URL, truckIcon } from '../lib/mapIcons';
 
 const STAGES = [
-  { label: 'Pedido recibido', desc: 'Confirmando orden', icon: Package },
-  { label: 'En preparación', desc: 'Empacando en el Hub', icon: Box },
-  { label: 'En tránsito', desc: 'Camioneta en camino', icon: Truck },
-  { label: 'En ruta final', desc: 'A pocas calles de tu casa', icon: MapPin },
-  { label: '¡Entregado!', desc: 'Paquete en tu domicilio', icon: CircleCheck },
+  { label: 'Pedido recibido', short: 'Pedido', desc: 'Confirmando orden', icon: Package },
+  { label: 'En preparación y empaque', short: 'Preparación', desc: 'Picking y empaque en el Hub', icon: Box },
+  { label: 'En tránsito', short: 'Tránsito', desc: 'Camioneta en camino', icon: Truck },
+  { label: 'En ruta final de entrega', short: 'Ruta final', desc: 'A pocas calles de tu casa', icon: MapPin },
+  { label: 'Entregado', short: 'Entregado', desc: '¡Paquete en tu domicilio!', icon: CircleCheck },
 ];
 
 function MiniMapHandler({ route }) {
@@ -457,8 +457,8 @@ export default function FloatingGpsTracker() {
                     >
                       <s.icon className="size-3.5" />
                     </span>
-                    <span className={`mt-1 text-[9px] font-medium leading-none line-clamp-1 ${isPassed || isCurrent ? 'text-navy-900 font-bold' : 'text-slate-400'}`}>
-                      {s.label.split(' ')[0]}
+                    <span className={`mt-1 text-[9px] font-medium leading-tight text-center ${isPassed || isCurrent ? 'text-navy-900 font-bold' : 'text-slate-400'}`}>
+                      {s.short}
                     </span>
                   </div>
                 );
