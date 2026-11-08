@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Leaf, PackageCheck, RotateCcw, Truck } from 'lucide-react';
 import ProductBuyBox from '../components/ProductBuyBox';
 import ProductCard from '../components/ProductCard';
+import AmazonProductReviews from '../components/AmazonProductReviews';
 import { GamaBadge, SmartImage, Stars } from '../components/ui';
 import { PRODUCTS, categoryById, getProduct } from '../data/products';
 import NotFound from './NotFound';
@@ -140,7 +141,16 @@ export default function ProductDetail() {
             <p className="text-sm font-medium text-slate-500">{product.brand}</p>
             <h1 className="font-display text-3xl font-bold text-navy-900 md:text-4xl">{product.name}</h1>
             <div className="mt-2">
-              <Stars rating={product.rating} reviews={product.reviews} size="md" />
+              <a
+                href="#opiniones-clientes"
+                className="group inline-flex items-center gap-1.5 transition hover:opacity-80"
+                title="Ver opiniones y calificaciones de clientes"
+              >
+                <Stars rating={product.rating} reviews={product.reviews} size="md" />
+                <span className="text-xs text-amber-700 font-semibold group-hover:underline ml-1">
+                  Ver opiniones ∨
+                </span>
+              </a>
             </div>
           </div>
           <p className="leading-relaxed text-slate-600">{product.description}</p>
@@ -205,6 +215,9 @@ export default function ProductDetail() {
           )}
         </div>
       </section>
+
+      {/* Sección estilo Amazon: Opiniones y Reseñas de Clientes (8+ reseñas verificadas) */}
+      <AmazonProductReviews product={product} />
 
       {related.length > 0 && (
         <section className="mt-16" aria-labelledby="rel-title">
