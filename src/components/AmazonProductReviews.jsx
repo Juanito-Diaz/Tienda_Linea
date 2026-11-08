@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Star,
   CheckCircle2,
@@ -16,11 +16,15 @@ import {
   calculateRatingStats,
   saveUserReview,
 } from '../data/productReviews';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { SmartImage } from './ui';
 
 export default function AmazonProductReviews({ product }) {
   const toast = useToast();
+  const { currentUser } = useAuth();
+  const defaultUserName = currentUser?.nombre || 'Lily García';
+
   const [reviewsData, setReviewsData] = useState(() => getProductReviews(product.id));
   const [selectedStarFilter, setSelectedStarFilter] = useState(null);
   const [selectedTag, setSelectedTag] = useState(null);
@@ -29,11 +33,21 @@ export default function AmazonProductReviews({ product }) {
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [votedReviews, setVotedReviews] = useState({});
 
-  // Formulario de nueva reseña
+  // Formulario de nueva reseña: por defecto con el nombre del usuario logueado o cuenta demo
   const [formRating, setFormRating] = useState(5);
   const [formTitle, setFormTitle] = useState('');
   const [formContent, setFormContent] = useState('');
-  const [formAuthor, setFormAuthor] = useState('');
+  const [formAuthor, setFormAuthor] = useState(() => defaultUserName);
+
+  // Mantener actualizado el nombre cuando cambie el usuario o inicie sesión
+  useEffect(() => {
+    setFormAuthor(defaultUserName);
+  }, [defaultUserName]);
+
+  const handleOpenWriteModal = () => {
+    setFormAuthor(currentUser?.nombre || 'Lily García');
+    setShowWriteModal(true);
+  };
 
   // Estadísticas globales del producto
   const stats = useMemo(() => {
@@ -110,8 +124,9 @@ export default function AmazonProductReviews({ product }) {
       return;
     }
 
+    const authorName = formAuthor.trim() || defaultUserName;
     const created = saveUserReview(product.id, {
-      author: formAuthor.trim() || 'Cliente Verificado',
+      author: authorName,
       rating: formRating,
       title: formTitle.trim() || 'Excelente producto',
       content: formContent.trim(),
@@ -125,7 +140,7 @@ export default function AmazonProductReviews({ product }) {
       setShowWriteModal(false);
       setFormTitle('');
       setFormContent('');
-      setFormAuthor('');
+      setFormAuthor(defaultUserName);
       setFormRating(5);
       toast({
         title: '¡Opinión publicada con éxito!',
@@ -251,7 +266,7 @@ export default function AmazonProductReviews({ product }) {
             </p>
             <button
               type="button"
-              onClick={() => setShowWriteModal(true)}
+              onClick={handleOpenWriteModal}
               className="w-full rounded-full border border-slate-300 bg-white py-2 px-4 text-xs font-semibold text-navy-900 hover:bg-slate-50 hover:border-slate-400 shadow-xs transition"
             >
               Escribir mi opinión
@@ -553,16 +568,26 @@ export default function AmazonProductReviews({ product }) {
 
               {/* Nombre del autor */}
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-navy-900">
-                  Tu nombre o apodo público
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-navy-900">
+                    Tu nombre o apodo público
+                  </label>
+                  {currentUser && (
+                    <span className="text-[11px] text-mint-700 font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="size-3" /> Cuenta activa
+                    </span>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={formAuthor}
                   onChange={(e) => setFormAuthor(e.target.value)}
-                  placeholder="Ej. Sofía Mendoza"
+                  placeholder={defaultUserName}
                   className="input text-xs"
                 />
+                <p className="text-[11px] text-slate-400">
+                  Aparece por defecto el nombre de tu cuenta ({defaultUserName}). Puedes personalizarlo si lo deseas.
+                </p>
               </div>
 
               {/* Título de la reseña */}
