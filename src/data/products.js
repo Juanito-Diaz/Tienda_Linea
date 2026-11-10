@@ -2,7 +2,7 @@
 // Las imágenes provienen de Unsplash (licencia libre) y tienen un fallback visual en <SmartImage>.
 
 const img = (id, w = 1000) => {
-  if (id.startsWith('http://') || id.startsWith('https://')) return id;
+  if (id.startsWith('http://') || id.startsWith('https://') || id.startsWith('/')) return id;
   if (id.startsWith('premium_photo-')) {
     return `https://plus.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
   }
@@ -51,7 +51,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 412,
     tags: ['promo'],
-    images: [img('1596462502278-27bfdc403348'), img('1631214524020-7e18db9a8f92'), img('1522337360788-8b13dee7a37e')],
+    images: ['/images/products/mq-001.jpg'],
     description:
       'Base de cobertura media modulable con acabado satinado que se funde con la piel. Fórmula ligera de larga duración (24 h) que no transfiere.',
     details: [
@@ -80,7 +80,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 289,
     tags: ['nuevo'],
-    images: [img('1586495777744-4413f21062fa'), img('1591360236480-4ed861025fa1'), img('1571781926291-c477ebfd024b')],
+    images: ['/images/products/mq-002.jpg'],
     description:
       'Labial de acabado mate aterciopelado con pigmento intenso en una sola pasada. Estuche metálico recargable.',
     details: [
@@ -110,7 +110,7 @@ export const PRODUCTS = [
     rating: 4.6,
     reviews: 521,
     tags: ['promo'],
-    images: [img('1512496015851-a90fb38ba796'), img('1503236823255-94609f598e71'), img('1522335789203-aabd1fc54bc9')],
+    images: ['/images/products/mq-003.jpg'],
     description: '12 sombras de alta pigmentación en tonos neutros: mates, satinados y metálicos para looks de día y noche.',
     details: [
       ['Ingredientes clave', 'Mica natural, vitamina E, aceite de argán'],
@@ -136,7 +136,7 @@ export const PRODUCTS = [
     rating: 4.7,
     reviews: 864,
     tags: ['nuevo'],
-    images: [img('1620916566398-39f1143ab7be'), img('1556228578-8c89e6adf883'), img('1617897903246-719242758050')],
+    images: ['/images/products/mq-004.jpg'],
     description: 'Sérum antioxidante iluminador que unifica el tono y reduce manchas. Textura acuosa de rápida absorción.',
     details: [
       ['Ingredientes clave', 'Vitamina C estabilizada 15%, ácido ferúlico, niacinamida'],
@@ -162,7 +162,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 198,
     tags: [],
-    images: [img('1556228720-195a672e8a03'), img('1570172619644-dfd03ed5d881'), img('1598440947619-2c35fc9aa908')],
+    images: ['/images/products/mq-005.jpg'],
     description: 'Crema regeneradora de noche con péptidos y extractos botánicos. Envase de vidrio esmerilado.',
     details: [
       ['Ingredientes clave', 'Péptidos biomiméticos, escualano, extracto de orquídea'],
@@ -188,7 +188,7 @@ export const PRODUCTS = [
     rating: 4.5,
     reviews: 1032,
     tags: [],
-    images: [img('1512207159096-c2c91b1dfadd'), img('premium_photo-1791212439439-968800ef5c41'), img('premium_photo-1758523720672-c5704946a083')],
+    images: ['/images/products/mq-006.jpg'],
     description: 'Máscara de volumen extremo y efecto alargador. Resistente al agua, no se corre ni forma grumos.',
     details: [
       ['Ingredientes clave', 'Cera de abeja, pantenol, fibras de seda'],
@@ -214,7 +214,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 320,
     tags: ['nuevo', 'promo'],
-    images: [img('1617897903246-719242758050'), img('1620916566398-39f1143ab7be'), img('1526947425960-945c6e72858f')],
+    images: ['/images/products/mq-007.jpg'],
     description: 'Tratamiento iluminador intensivo con 15% de ácido ascórbico puro y ácido ferúlico. Protege contra radicales libres y unifica el tono facial visiblemente.',
     details: [
       ['Ingredientes clave', 'Vitamina C pura 15%, Ácido ferúlico 0.5%, Ácido hialurónico'],
@@ -241,7 +241,7 @@ export const PRODUCTS = [
     rating: 4.7,
     reviews: 195,
     tags: ['promo'],
-    images: [img('1503236823255-94609f598e71'), img('1512496015851-a90fb38ba796'), img('1535585209827-a15fcdbc4c2d')],
+    images: ['/images/products/mq-008.jpg'],
     description: 'Compacto dual con rubor sedoso e iluminador aperlado de micro-partículas reflectantes para un efecto saludable y radiante todo el día.',
     details: [
       ['Acabado', 'Satinado luminoso y natural'],
@@ -267,7 +267,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 410,
     tags: ['nuevo'],
-    images: [img('1506618403381-77ae408451b7'), img('1512053495053-20f2b036d1d4'), img('1747823489881-982182fc3ce9')],
+    images: ['/images/products/mq-009.jpg'],
     description: 'Delineador de punta de fibra ultrafina de 0.1 mm con flujo continuo y pigmento carbón ultra negro indeleble a prueba de agua y sudor.',
     details: [
       ['Fórmula', 'Waterproof 24 h sin transferencia'],
@@ -293,7 +293,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 512,
     tags: ['promo'],
-    images: [img('1503900038894-cb3a9cb28484'), img('1536507789696-9ced44de40bd'), img('1487412912498-0447578fcca8')],
+    images: ['/images/products/mq-010.jpg'],
     description: '12 sombras ultra-pigmentadas con acabados mate aterciopelado, metálico y glitter multidimensional. Enriquecidas con manteca de cacao para una textura suave que se difumina sin esfuerzo.',
     details: [
       ['Acabados', '6 mates, 4 metálicos, 2 glitters duo-cromo'],
@@ -318,7 +318,7 @@ export const PRODUCTS = [
     rating: 4.6,
     reviews: 289,
     tags: ['nuevo'],
-    images: [img('1570172619644-dfd03ed5d881'), img('1556228720-195a672e8a03'), img('1526947425960-945c6e72858f')],
+    images: ['/images/products/mq-011.jpg'],
     description: 'Bruma microfina fijadora que controla el exceso de brillo y mantiene el maquillaje intacto hasta por 16 horas sin resecar la piel.',
     details: [
       ['Ingredientes clave', 'Niacinamida 2%, extracto de té verde, aloe vera'],
@@ -343,7 +343,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 374,
     tags: ['nuevo'],
-    images: [img('1591360236480-4ed861025fa1'), img('1586495777744-4413f21062fa'), img('1571781926291-c477ebfd024b')],
+    images: ['/images/products/mq-012.jpg'],
     description: 'Tratamiento nutritivo de brillo no pegajoso que intensifica el tono natural de los labios mientras los rellena y repara.',
     details: [
       ['Ingredientes clave', 'Aceite de cereza silvestre, ácido hialurónico, escualano'],
@@ -370,7 +370,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 640,
     tags: ['promo'],
-    images: [img('1631214524020-7e18db9a8f92'), img('1596462502278-27bfdc403348'), img('1522337360788-8b13dee7a37e')],
+    images: ['/images/products/mq-013.jpg'],
     description: 'Corrector de ojeras e imperfecciones con cobertura modulable y tecnología difusora de luz que borra signos de fatiga y líneas de expresión.',
     details: [
       ['Fórmula', 'Sin pliegues, duración 16h resistente a la humedad'],
@@ -396,7 +396,7 @@ export const PRODUCTS = [
     rating: 4.7,
     reviews: 430,
     tags: [],
-    images: [img('1698335107935-e2c8287c4947'), img('premium_photo-1683147720304-bc9a8a6f361b'), img('premium_photo-1671656333452-7369599f92ee')],
+    images: ['/images/products/mq-014.jpg'],
     description: 'Gel fijador con cepillo cónico de precisión para efecto laminado que fija y define cada vello sin dejar residuos blancos ni sensación rígida.',
     details: [
       ['Fijación', 'Efecto laminado todo el día'],
@@ -421,7 +421,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 215,
     tags: ['nuevo'],
-    images: [img('1556228720-195a672e8a03'), img('1526947425960-945c6e72858f'), img('1617897903246-719242758050')],
+    images: ['/images/products/mq-015.jpg'],
     description: 'Fórmula bifásica infusionada con agua de rosas y micelas inteligentes que retiran maquillaje waterproof y restos de polución sin frotar ni irritar ojos sensibles.',
     details: [
       ['Ingredientes clave', 'Agua de rosa damascena, micelas biomiméticas, provitamina B5'],
@@ -449,7 +449,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 367,
     tags: ['promo', 'nuevo'],
-    images: [img('1542291026-7eec264c27ff'), img('1460353581641-37baddab0fa2'), img('1595950653106-6c9ebd614d3a')],
+    images: ['/images/products/dp-001.jpg'],
     description: 'Tenis con espuma de retorno de energía, placa de propulsión y upper de malla transpirable. Ideal para medio maratón.',
     details: [
       ['Materiales', 'Malla técnica reciclada, mediasuela EVA supercrítica'],
@@ -469,7 +469,7 @@ export const PRODUCTS = [
     rating: 4.7,
     reviews: 642,
     tags: ['nuevo'],
-    images: [img('1518459031867-a89b944bffe4'), img('1506152983158-b4a74a01c721'), img('1584863265045-f9d10ca7fa61')],
+    images: ['/images/products/dp-002.jpg'],
     description: 'Leggings de compresión media con tiro alto, bolsillo lateral y tejido squat-proof de secado rápido.',
     details: [
       ['Materiales', '78% poliamida, 22% elastano'],
@@ -489,7 +489,7 @@ export const PRODUCTS = [
     rating: 4.6,
     reviews: 298,
     tags: ['promo'],
-    images: [img('1581655353564-df123a1eb820'), img('1521572267360-ee0c2909d518'), img('1517836357463-d25dfeac3438')],
+    images: ['/images/products/dp-003.jpg'],
     description: 'Playera ultraligera con paneles de ventilación láser y costuras planas antirrozaduras.',
     details: [
       ['Materiales', '100% poliéster reciclado'],
@@ -508,7 +508,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 156,
     tags: [],
-    images: [img('1600872164524-072486994162'), img('1563321113-c2e28e2eb180'), img('1509041282410-ef44f92a193f')],
+    images: ['/images/products/dp-004.jpg'],
     description: 'Chamarra empacable repelente al agua con detalles reflectantes 360° para entrenar al amanecer.',
     details: [
       ['Materiales', 'Ripstop de nylon 20D con DWR'],
@@ -527,7 +527,7 @@ export const PRODUCTS = [
     rating: 4.5,
     reviews: 211,
     tags: [],
-    images: [img('1460353581641-37baddab0fa2'), img('1515955656352-a1fa3ffcd111'), img('1575537302964-96cd47c06b1b')],
+    images: ['/images/products/dp-005.jpg'],
     description: 'Calzado estable para entrenamiento funcional y pesas, con suela de goma multidireccional.',
     details: [
       ['Materiales', 'Upper de punto, talón TPU'],
@@ -546,7 +546,7 @@ export const PRODUCTS = [
     rating: 4.6,
     reviews: 187,
     tags: ['nuevo'],
-    images: [img('1556906781-9a412961c28c'), img('1517836357463-d25dfeac3438'), img('1584735935682-2f2b69dff9d2')],
+    images: ['/images/products/dp-006.jpg'],
     description: 'Short con abertura lateral, malla interior y bolsillo trasero con cierre para llaves o geles.',
     details: [
       ['Materiales', '88% poliéster, 12% elastano'],
@@ -565,7 +565,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 142,
     tags: ['promo', 'nuevo'],
-    images: [img('1541635930383-c21a3eab7075'), img('1535427279878-d351bbe0fadc'), img('1542736619-c0911cb5eb12')],
+    images: ['/images/products/dp-007.jpg'],
     description: 'Chaqueta cortavientos empacable en su propio bolsillo. Tejido ripstop repelente al agua con ventilación posterior y elementos reflectantes 360°.',
     details: [
       ['Materiales', '100% nylon micro-ripstop cortavientos'],
@@ -584,7 +584,7 @@ export const PRODUCTS = [
     rating: 4.7,
     reviews: 218,
     tags: ['nuevo'],
-    images: [img('1588850561407-ed78c282e89b'), img('1518459031867-a89b944bffe4'), img('1544441893-675973e31985')],
+    images: ['/images/products/dp-008.jpg'],
     description: 'Gorra deportiva de 5 paneles ultraligera con banda interna absorbente de sudor y perforaciones láser para máxima ventilación bajo el sol.',
     details: [
       ['Protección', 'Visera flexible con filtro UV UPF 50+'],
@@ -610,7 +610,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 310,
     tags: ['promo'],
-    images: [img('1586350977771-b3b0abd50c82'), img('1542291026-7eec264c27ff'), img('1556906781-9a412961c28c')],
+    images: ['/images/products/dp-009.jpg'],
     description: 'Pack de 3 pares de calcetines técnicos con soporte en arco plantar, amortiguación antifricción en talón y puntera sin costuras para evitar ampollas.',
     details: [
       ['Materiales', '70% poliamida CoolMax, 25% elastano, 5% lycra'],
@@ -635,7 +635,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 275,
     tags: ['promo'],
-    images: [img('1608217002058-2e45c33b6c2c'), img('1618355281686-2b622387ada4'), img('1597452485669-2c7bb5fef90d')],
+    images: ['/images/products/dp-010.jpg'],
     description: 'Capa base de compresión ergonómica que estimula la circulación y oxigenación muscular. Tejido antibacteriano de secado instantáneo con costuras planas.',
     details: [
       ['Materiales', '85% poliéster reciclado Dri-Tech, 15% elastano'],
@@ -653,7 +653,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 388,
     tags: ['nuevo'],
-    images: [img('1518611012118-696072aa579a'), img('1506152983158-b4a74a01c721'), img('1518459031867-a89b944bffe4')],
+    images: ['/images/products/dp-011.jpg'],
     description: 'Sujetador deportivo diseñado para entrenamientos de máxima intensidad (HIIT y running). Tirantes acolchados cruzados en espalda y banda elástica ancha.',
     details: [
       ['Soporte', 'Nivel 3 (Alto impacto sin rebote)'],
@@ -672,7 +672,7 @@ export const PRODUCTS = [
     rating: 4.7,
     reviews: 194,
     tags: ['promo'],
-    images: [img('1552902865-b72c031ac5ea'), img('1556906781-9a412961c28c'), img('1517836357463-d25dfeac3438')],
+    images: ['/images/products/dp-012.jpg'],
     description: 'Pantalón jogger con corte estilizado, puños elásticos en tobillo y bolsillos laterales termosellados con cremallera YKK invisible.',
     details: [
       ['Composición', 'Tejido elástico en 4 direcciones (4-Way Stretch)'],
@@ -690,7 +690,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 304,
     tags: ['nuevo'],
-    images: [img('1553062407-98eeb64c6a62'), img('1544816155-12df9643f363'), img('1544441893-675973e31985')],
+    images: ['/images/products/dp-013.jpg'],
     description: 'Bolso de entrenamiento y viaje con compartimento ventilado independiente para tenis o ropa húmeda, bolsillo impermeable y correa acolchada ergonómica.',
     details: [
       ['Capacidad', '45 Litros'],
@@ -715,7 +715,7 @@ export const PRODUCTS = [
     rating: 4.6,
     reviews: 160,
     tags: [],
-    images: [img('1574680096145-d05b474e2155'), img('1583454110551-21f2fa2afe61'), img('1517963879433-6ad2b056d712')],
+    images: ['/images/products/dp-014.jpg'],
     description: 'Guantes de levantamiento de pesas con muñequera de soporte elástica ajustable de 40 cm y palma con almohadillas de silicona antideslizante.',
     details: [
       ['Materiales', 'Microfibra transpirable, cuero sintético de alta tracción, silicona'],
@@ -734,7 +734,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 420,
     tags: ['promo', 'nuevo'],
-    images: [img('1602143407151-7111542de6e8'), img('1523362628745-0c100150b504'), img('1553062407-98eeb64c6a62')],
+    images: ['/images/products/dp-015.jpg'],
     description: 'Termo de aislamiento al vacío de doble pared que mantiene tus bebidas frías 24h o calientes 12h. Tapa deportiva hermética con popote integrado.',
     details: [
       ['Capacidad', '750 ml'],
@@ -762,7 +762,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 503,
     tags: ['nuevo'],
-    images: [img('1447933601403-0c6688de566e'), img('1514432324607-a09d9b4aefdd'), img('1559056199-641a0ac8b55e')],
+    images: ['/images/products/cf-001.jpg'],
     description: 'Café de altura (1,450 msnm), variedad Bourbon con proceso lavado. Notas a chocolate amargo, nuez y mandarina.',
     details: [
       ['Origen', 'Sierra Madre de Chiapas, México'],
@@ -791,7 +791,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 276,
     tags: ['promo'],
-    images: [img('1495474472287-4d71bcdd2085'), img('1511920170033-f8396924c348'), img('1534778101976-62847782c213')],
+    images: ['/images/products/cf-002.jpg'],
     description: 'Lote de especialidad con proceso natural. Taza floral y brillante con notas a arándano, jazmín y bergamota.',
     details: [
       ['Origen', 'Gedeo, Etiopía'],
@@ -818,7 +818,7 @@ export const PRODUCTS = [
     rating: 4.6,
     reviews: 341,
     tags: [],
-    images: [img('1509042239860-f550ce710b93'), img('1447933601403-0c6688de566e'), img('1518832553480-cd0e625ed3e6')],
+    images: ['/images/products/cf-003.jpg'],
     description: 'Proceso honey que resalta el dulzor: caramelo, durazno y panela con cuerpo sedoso.',
     details: [
       ['Origen', 'Coatepec, Veracruz, México'],
@@ -847,7 +847,7 @@ export const PRODUCTS = [
     rating: 4.7,
     reviews: 718,
     tags: ['promo'],
-    images: [img('1514432324607-a09d9b4aefdd'), img('1514066558159-fc8c737ef259'), img('1442512595331-e89e73853f31')],
+    images: ['/images/products/cf-004.jpg'],
     description: 'Mezcla de Brasil y Oaxaca para espresso con crema densa: cacao, melaza y especias.',
     details: [
       ['Origen', 'Cerrado Mineiro (Brasil) + Pluma Hidalgo (Oaxaca)'],
@@ -873,7 +873,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 132,
     tags: ['nuevo'],
-    images: [img('1522012188892-24beb302783d'), img('1541469406036-71229832e06e'), img('1621267860478-dbdd589372db')],
+    images: ['/images/products/cf-005.jpg'],
     description: 'Gotero cerámico, servidor de vidrio de borosilicato de 600 ml y 100 filtros. Incluye guía de recetas.',
     details: [
       ['Incluye', 'Gotero cerámico 02, jarra 600 ml, 100 filtros'],
@@ -899,7 +899,7 @@ export const PRODUCTS = [
     rating: 4.5,
     reviews: 224,
     tags: [],
-    images: [img('1442512595331-e89e73853f31'), img('1497636577773-f1231844b336'), img('1521017432531-fbd92d768814')],
+    images: ['/images/products/cf-006.jpg'],
     description: 'Variedad Pluma Hidalgo de cultivo bajo sombra. Taza robusta con notas a chocolate y tabaco dulce.',
     details: [
       ['Origen', 'Pluma Hidalgo, Oaxaca, México'],
@@ -926,7 +926,7 @@ export const PRODUCTS = [
     rating: 5.0,
     reviews: 178,
     tags: ['promo', 'nuevo'],
-    images: [img('1513530176992-0cf39c4cbed4'), img('1501339847302-ac426a4a7cbb'), img('1675306408031-a9aad9f23308')],
+    images: ['/images/products/cf-007.jpg'],
     description: 'Micro-lote exclusivo de variedad Geisha procesado mediante Yellow Honey a 1,750 msnm. Notas a jazmín, durazno, bergamota y miel de azahar.',
     details: [
       ['Origen', 'Coatepec, Veracruz, México'],
@@ -952,7 +952,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 245,
     tags: ['nuevo'],
-    images: [img('1541167760496-1628856ab772'), img('1517668808822-9ebb02f2a0e6'), img('1509042239860-f550ce710b93')],
+    images: ['/images/products/cf-008.jpg'],
     description: 'Cafetera de émbolo con cuerpo de cristal borosilicato resistente a choque térmico, filtro cuádruple de acero inoxidable 304 y armazón ergonómico.',
     details: [
       ['Capacidad', '800 ml (4 a 6 tazas)'],
@@ -978,7 +978,7 @@ export const PRODUCTS = [
     rating: 4.7,
     reviews: 164,
     tags: [],
-    images: [img('1559056199-641a0ac8b55e'), img('1518832553480-cd0e625ed3e6'), img('1442512595331-e89e73853f31')],
+    images: ['/images/products/cf-009.jpg'],
     description: 'Descafeinado 100% natural mediante el proceso Mountain Water de manantiales del Pico de Orizaba, libre de químicos. Notas a caramelo y avellana tostada.',
     details: [
       ['Origen', 'Cuetzalan, Puebla, México'],
@@ -1004,7 +1004,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 388,
     tags: ['nuevo'],
-    images: [img('1447933601403-0c6688de566e'), img('1507133750040-4a8f57021571'), img('1559056199-641a0ac8b55e')],
+    images: ['/images/products/cf-010.jpg'],
     description: 'Café de estricta altura (1,300 msnm) cosechado en el bosque de niebla de Coatepec. Taza brillante con notas a manzana verde, caramelo y canela.',
     details: [
       ['Origen', 'Coatepec, Veracruz, México'],
@@ -1032,7 +1032,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 412,
     tags: ['promo', 'nuevo'],
-    images: [img('1723239794753-7dd55971f999'), img('1693570860207-93de69ecca3f'), img('1788541455905-8babf1e9edcc')],
+    images: ['/images/products/cf-011.jpg'],
     description: 'Molino de precisión con muelas cónicas de acero inoxidable 420 de 38 mm con doble rodamiento y 36 niveles de ajuste micrométrico continuo.',
     details: [
       ['Muelas', 'Acero inoxidable templado 420 CNC'],
@@ -1057,7 +1057,7 @@ export const PRODUCTS = [
     rating: 5.0,
     reviews: 156,
     tags: ['nuevo'],
-    images: [img('1553292218-4892c2e7e1ae'), img('1586095516671-d085ff58cdd4'), img('1511919664133-34f592b16c6f')],
+    images: ['/images/products/cf-012.jpg'],
     description: 'Edición limitada con 72 horas de fermentación anaeróbica en cereza. Perfil exótico con notas intensas a frutos rojos maduros, vino tinto, maracuyá y cacao.',
     details: [
       ['Origen', 'Atoyac de Álvarez, Sierra Madre del Sur, Guerrero'],
@@ -1083,7 +1083,7 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 290,
     tags: ['promo'],
-    images: [img('1788894499205-367168a2baba'), img('1780341219526-a1b2ff5bbfda'), img('1787741045431-2146dd540790')],
+    images: ['/images/products/cf-013.jpg'],
     description: 'Báscula para baristas con precisión de 0.1 g hasta 2 kg, cronómetro de extracción automático con auto-start, pantalla LED oculta y recarga USB-C.',
     details: [
       ['Precisión', '0.1 g (Rango: 0.5 g a 2,000 g)'],
@@ -1108,7 +1108,7 @@ export const PRODUCTS = [
     rating: 4.7,
     reviews: 182,
     tags: [],
-    images: [img('1606486544554-164d98da4889'), img('1773894480003-955c58ddf4af'), img('1785288661906-9c71358c5785')],
+    images: ['/images/products/cf-014.jpg'],
     description: 'Cosechado en suelos volcánicos de Nayarit a 1,200 msnm. Variedad Marsellesa que destaca por su dulzura profunda a piloncillo, vainilla y nueces tostadas.',
     details: [
       ['Origen', 'Volcán San Juan, Nayarit, México'],
@@ -1134,7 +1134,7 @@ export const PRODUCTS = [
     rating: 4.9,
     reviews: 345,
     tags: ['promo', 'nuevo'],
-    images: [img('1517668808822-9ebb02f2a0e6'), img('1495474472287-4d71bcdd2085'), img('1509042239860-f550ce710b93')],
+    images: ['/images/products/cf-015.jpg'],
     description: 'Hervidor de vertido manual con caño curvo gooseneck de 90° diseñado para lograr una tasa de flujo constante en extracciones V60, Chemex y Aeropress.',
     details: [
       ['Capacidad', '600 ml'],
