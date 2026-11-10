@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { RotateCcw, SlidersHorizontal, X } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
@@ -37,6 +37,17 @@ export default function Catalog() {
 
   const categoria = params.get('categoria') ?? '';
   const q = (params.get('q') ?? '').toLowerCase();
+
+  // Al cambiar de categoría o búsqueda, posicionar la vista inmediatamente al inicio superior
+  useEffect(() => {
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    } catch {
+      window.scrollTo(0, 0);
+    }
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [categoria, q]);
   const promo = params.get('promo') === '1';
   const list = (k) => params.getAll(k);
   const min = Number(params.get('min') ?? 0);

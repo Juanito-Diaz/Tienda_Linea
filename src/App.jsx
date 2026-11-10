@@ -25,14 +25,20 @@ import {
 } from './lib/trackingManager';
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const categoria = new URLSearchParams(location.search).get('categoria');
+  const q = new URLSearchParams(location.search).get('q');
+
   useEffect(() => {
     try {
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     } catch {
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      window.scrollTo(0, 0);
     }
-  }, [pathname]);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [location.pathname, categoria, q]);
+
   return null;
 }
 
