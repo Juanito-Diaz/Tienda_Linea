@@ -2568,7 +2568,9 @@ export const PRODUCT_REVIEWS = {
       }
     ],
     "customerPhotos": [
-      "/images/products/dp-001.jpg"
+      "/images/products/dp-001.jpg",
+      "/images/products/dp-001-2.jpg",
+      "/images/products/dp-001-3.jpg"
     ],
     "reviews": [
       {
@@ -3076,7 +3078,9 @@ export const PRODUCT_REVIEWS = {
       }
     ],
     "customerPhotos": [
-      "/images/products/dp-005.jpg"
+      "/images/products/dp-005.jpg",
+      "/images/products/dp-005-2.jpg",
+      "/images/products/dp-005-3.jpg"
     ],
     "reviews": [
       {

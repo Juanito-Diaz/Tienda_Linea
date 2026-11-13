@@ -577,7 +577,11 @@ export const PRODUCTS = [
     rating: 4.8,
     reviews: 367,
     tags: ['promo', 'nuevo'],
-    images: ['/images/products/dp-001.jpg'],
+    images: [
+      '/images/products/dp-001.jpg',
+      '/images/products/dp-001-2.jpg',
+      '/images/products/dp-001-3.jpg',
+    ],
     description: 'Tenis con espuma de retorno de energía, placa de propulsión y upper de malla transpirable. Ideal para medio maratón.',
     details: [
       ['Materiales', 'Malla técnica reciclada, mediasuela EVA supercrítica'],
@@ -655,7 +659,11 @@ export const PRODUCTS = [
     rating: 4.5,
     reviews: 211,
     tags: [],
-    images: ['/images/products/dp-005.jpg'],
+    images: [
+      '/images/products/dp-005.jpg',
+      '/images/products/dp-005-2.jpg',
+      '/images/products/dp-005-3.jpg',
+    ],
     description: 'Calzado estable para entrenamiento funcional y pesas, con suela de goma multidireccional.',
     details: [
       ['Materiales', 'Upper de punto, talón TPU'],
